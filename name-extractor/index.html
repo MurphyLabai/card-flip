@@ -192,10 +192,12 @@
                     <option value="facebook">Facebook</option>
                     <option value="twitter">Twitter / X</option>
                     <option value="youtube">YouTube</option>
-                    <option value="instagram" disabled>Instagram (coming soon)</option>
-                    <option value="tiktok" disabled>TikTok (coming soon)</option>
+                    <option value="reddit">Reddit</option>
                 </select>
                 <span style="font-size: 0.8rem; color: #666;">More platforms coming soon</span>
+                <div id="redditTip" style="display:none; font-size: 0.75rem; color: #888; margin-top: 8px; background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 8px;">
+                    Tip: For giveaways, only have all new comments or all replies to your giveaway thread. (System extracts both main comments & replies)
+                </div>
             </div>
         </div>
 
@@ -358,7 +360,71 @@ John Smith"></textarea>
             return { names: finalNames, excludedCount };
         }
 
-        function extractNamesTwitter(text) {
+        function extractNamesReddit(text) {
+            // Reddit: extract usernames, skip ads and meta
+            const lines = text.split('\n');
+            const names = [];
+            const excludedList = getExcludedList();
+            let excludedCount = 0;
+
+            const adAccounts = ['shopify', 'alibaba', 'amazon', 'nordvpn', 'expressvpn', 'surfshark', 'coinbase', 'binance', 'reddit', 'hulu', 'netflix'];
+
+            for (const line of lines) {
+                const trimmed = line.trim();
+                if (!trimmed) continue;
+
+                const lower = trimmed.toLowerCase();
+
+                // Skip meta/UI lines
+                if (['upvote', 'downvote', 'share', 'save', 'reply', 'award', 'op'].some(w => lower === w)) continue;
+                if (lower.includes('avatar')) continue;
+                if (lower.includes('promoted')) continue;
+                if (lower.includes('learn more') || lower.includes('sign up')) continue;
+                if (lower.includes('http') || lower.includes('www.')) continue;
+                if (lower.includes('clickable image')) continue;
+                if (lower.includes('collapse video')) continue;
+
+                // Skip timestamp and number lines
+                if (/^\d+\s*$/.test(trimmed)) continue;
+                if (/^[•]/.test(trimmed)) continue;
+
+                let name = '';
+
+                // Match u/username first
+                const uMatch = trimmed.match(/^u\/([a-zA-Z0-9_-]{3,20})/i);
+                if (uMatch) {
+                    name = uMatch[1];
+                } else {
+                    // Match plain username (no prefix, 3-20 chars, starts with letter)
+                    const plainMatch = trimmed.match(/^([a-zA-Z][a-zA-Z0-9_-]{2,20})$/i);
+                    if (plainMatch) {
+                        name = plainMatch[1];
+                    }
+                }
+
+                if (!name) continue;
+
+                // Skip ad accounts
+                if (adAccounts.some(ad => name.toLowerCase().includes(ad))) {
+                    excludedCount++;
+                    continue;
+                }
+
+                const isExcluded = excludedList.some(ex => 
+                    ex.toLowerCase() === name.toLowerCase()
+                );
+                if (isExcluded) {
+                    excludedCount++;
+                    continue;
+                }
+
+                names.push(name);
+            }
+
+            let finalNames = dedupState ? [...new Set(names)] : names;
+            return { names: finalNames, excludedCount };
+        }
+function extractNamesTwitter(text) {
             // Split by newlines, extract @handle lines only
             const lines = text.split('\n');
             const names = [];
@@ -448,6 +514,10 @@ John Smith"></textarea>
             const input = document.getElementById('inputText').value.trim();
             const platform = document.getElementById('platform').value;
 
+            // Toggle Reddit tip
+            const redditTip = document.getElementById('redditTip');
+            if (redditTip) redditTip.style.display = platform === 'reddit' ? 'block' : 'none';
+
             if (!input) {
                 showError('Please paste some comments first');
                 return;
@@ -460,6 +530,10 @@ John Smith"></textarea>
                 result = extractNamesTwitter(input);
             } else if (platform === 'youtube') {
                 result = extractNamesYouTube(input);
+            } else if (platform === 'reddit') {
+                result = extractNamesReddit(input);
+            } else if (platform === 'tiktok') {
+                result = extractNamesTikTok(input);
             } else {
                 result = extractNamesGeneric(input);
             }

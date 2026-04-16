@@ -193,6 +193,7 @@
                     <option value="twitter">Twitter / X</option>
                     <option value="youtube">YouTube</option>
                     <option value="reddit">Reddit</option>
+                    <option value="telegram">Telegram</option>
                 </select>
                 <span style="font-size: 0.8rem; color: #666;">More platforms coming soon</span>
                 <div id="redditTip" style="display:none; font-size: 0.75rem; color: #888; margin-top: 8px; background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 8px;">
@@ -424,6 +425,44 @@ John Smith"></textarea>
             let finalNames = dedupState ? [...new Set(names)] : names;
             return { names: finalNames, excludedCount };
         }
+function extractNamesTelegram(text) {
+    // Telegram: [timestamp] username: message OR timestamp] username: message
+    const normalized = text.replace(/\r\n/g, '\n');
+    const lines = normalized.split('\n');
+    const names = [];
+    const excludedList = getExcludedList();
+    let excludedCount = 0;
+
+    for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed) continue;
+
+        let name = null;
+
+        // Format 1: [timestamp] username: (standard)
+        if (trimmed.startsWith('[')) {
+            const m = trimmed.match(/^\[([^\]]+)\]\s+([^:]+):/);
+            if (m) name = m[2].trim();
+        }
+        // Format 2: timestamp] username: (Telegram drops [ on paste)
+        else {
+            const m = trimmed.match(/^\d{4}-\d{2}-\d{2}\s+\d{1,2}:\d{2}\s*(?:AM|PM)?\]\s+([^:]+):/i);
+            if (m) name = m[1].trim();
+        }
+
+        if (!name || name.length < 1) continue;
+
+        const isExcluded = excludedList.some(ex =>
+            ex.toLowerCase() === name.toLowerCase()
+        );
+        if (isExcluded) { excludedCount++; continue; }
+
+        names.push(name);
+    }
+
+    let finalNames = dedupState ? [...new Set(names)] : names;
+    return { names: finalNames, excludedCount };
+}
 function extractNamesTwitter(text) {
             // Split by newlines, extract @handle lines only
             const lines = text.split('\n');
@@ -532,8 +571,8 @@ function extractNamesTwitter(text) {
                 result = extractNamesYouTube(input);
             } else if (platform === 'reddit') {
                 result = extractNamesReddit(input);
-            } else if (platform === 'tiktok') {
-                result = extractNamesTikTok(input);
+            } else if (platform === 'telegram') {
+                result = extractNamesTelegram(input);
             } else {
                 result = extractNamesGeneric(input);
             }

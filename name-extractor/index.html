@@ -162,6 +162,14 @@
             font-size: 0.85rem;
         }
         .stat span { color: #f39c12; font-weight: bold; }
+
+        .product-links { display: none; }
+        #outputSection.show .product-links { display: inline-flex; }
+        .product-btn { transition: opacity 0.2s; }
+        .product-btn:hover { opacity: 0.85; }
+        .other-tools-select { transition: opacity 0.2s; }
+        .other-tools-select:hover { background: rgba(255,255,255,0.15); }
+        .other-tools-select option { background: #2d2d2d; color: #fff; }
         .output-textarea {
             background: rgba(52, 152, 219, 0.1);
             border-color: rgba(52, 152, 219, 0.3);
@@ -194,6 +202,7 @@
                     <option value="youtube">YouTube</option>
                     <option value="reddit">Reddit</option>
                     <option value="telegram">Telegram</option>
+                    <option value="bluesky">BlueSky</option>
                 </select>
                 <span style="font-size: 0.8rem; color: #666;">More platforms coming soon</span>
                 <div id="redditTip" style="display:none; font-size: 0.75rem; color: #888; margin-top: 8px; background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 8px;">
@@ -250,6 +259,18 @@ John Smith"></textarea>
                 <div class="stat">Excluded: <span id="excludedCount">0</span></div>
             </div>
             <textarea id="outputText" class="output-textarea" readonly></textarea>
+            <div class="product-links" style="display: flex; gap: 10px; justify-content: center;">
+                <p style="width: 100%; text-align: center; font-size: 0.85rem; color: #fff; margin: 0 0 8px 0; font-family: 'Segoe UI', system-ui, sans-serif;">Congratulations on the extraction. Now you can copy your list and select a platform below to Randomly select a winner!</p>
+            </div>
+            <div class="product-links" style="display: inline-flex; gap: 10px; align-items: center;">
+                <a href="#" target="_blank" class="product-btn lite-btn" style="padding: 8px 20px; background: #333; color: #fff; text-align: center; border-radius: 8px; text-decoration: none; font-size: 1rem;">PromoPilot Lite <span style="opacity: 0.7">(Free Limited)</span></a>
+                <a href="#" target="_blank" class="product-btn pro-btn" style="padding: 8px 20px; background: #b8860b; color: #fff; text-align: center; border-radius: 8px; text-decoration: none; font-size: 1rem;">PromoPilot Pro <span style="opacity: 0.9">(Unlimited)</span></a>
+                <select class="other-tools-select" onchange="if(this.value) window.open(this.value,'_blank'); this.value='';" style="padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: #ccc; font-size: 0.85rem; cursor: pointer;">
+                    <option value="">Other tools...</option>
+                    <option value="https://random.org">Random.org</option>
+                    <option value="https://wheelofnames.com">WheelofNames</option>
+                </select>
+            </div>
         </div>
     </div>
 
@@ -463,6 +484,52 @@ function extractNamesTelegram(text) {
     let finalNames = dedupState ? [...new Set(names)] : names;
     return { names: finalNames, excludedCount };
 }
+function extractNamesBlueSky(text) {
+    // BlueSky: extract handles from two formats:
+    // 1. @handle.bsky.social (standard handle with @)
+    // 2. handle.bsky.social (display name ending in .bsky.social, no @)
+    const normalized = text.replace(/\r\n/g, '\n');
+    const lines = normalized.split('\n');
+    const names = [];
+    const excludedList = getExcludedList();
+    let excludedCount = 0;
+
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line) continue;
+
+        // Skip lines that are clearly not handles
+        const lower = line.toLowerCase();
+        if (lower.includes('youtube.com') || lower.includes('m.youtube.com')) continue;
+        if (lower.includes('http') || lower.includes('www.')) continue;
+
+        let name = null;
+
+        // Format 1: @handle.bsky.social (explicit handle)
+        const match1 = line.match(/^@([a-zA-Z0-9_.-]+)\.bsky\.social$/);
+        if (match1) {
+            name = '@' + match1[1];
+        } else {
+            // Format 2: handle.bsky.social (display name with .bsky.social suffix)
+            const match2 = line.match(/^([a-zA-Z0-9_.-]+)\.bsky\.social$/);
+            if (match2) {
+                name = '@' + match2[1];
+            }
+        }
+
+        if (!name) continue;
+
+        const isExcluded = excludedList.some(ex =>
+            ex.toLowerCase() === name.toLowerCase()
+        );
+        if (isExcluded) { excludedCount++; continue; }
+
+        names.push(name);
+    }
+
+    let finalNames = dedupState ? [...new Set(names)] : names;
+    return { names: finalNames, excludedCount };
+}
 function extractNamesTwitter(text) {
             // Split by newlines, extract @handle lines only
             const lines = text.split('\n');
@@ -573,6 +640,8 @@ function extractNamesTwitter(text) {
                 result = extractNamesReddit(input);
             } else if (platform === 'telegram') {
                 result = extractNamesTelegram(input);
+            } else if (platform === 'bluesky') {
+                result = extractNamesBlueSky(input);
             } else {
                 result = extractNamesGeneric(input);
             }
@@ -623,8 +692,9 @@ function extractNamesTwitter(text) {
         });
     </script>
 
-    <footer style="text-align: center; padding: 20px; font-size: 0.75rem; color: #888;">
-        Powered by <a href="https://promoplay.ca" target="_blank" style="color: #aaa; text-decoration: none;">PromoPlay.ca</a> All rights reserved 2026
+    <footer style="text-align: center; padding: 20px; font-size: 0.85rem; color: #aaa;">
+        <span style="color: #ccc;">Contact support - <a href="mailto:support@promoplay.ca" style="color: #ccc; text-decoration: none;">support@promoplay.ca</a> | <a href="#" id="faqLink" style="color: #ccc; text-decoration: none;">FAQ</a></span><br>
+        <span style="color: #888;">Powered by <a href="https://promoplay.ca" target="_blank" style="color: #888; text-decoration: none;">PromoPlay.ca</a> All rights reserved 2026</span>
     </footer>
 </body>
 </html>

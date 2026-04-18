@@ -389,6 +389,7 @@ John Smith"></textarea>
             const excludedList = getExcludedList();
             let excludedCount = 0;
 
+            // Ad account names (exact match only — prevents false positives like "surfroadx" matching "surfshark")
             const adAccounts = ['shopify', 'alibaba', 'amazon', 'nordvpn', 'expressvpn', 'surfshark', 'coinbase', 'binance', 'reddit', 'hulu', 'netflix'];
 
             for (const line of lines) {
@@ -408,17 +409,18 @@ John Smith"></textarea>
 
                 // Skip timestamp and number lines
                 if (/^\d+\s*$/.test(trimmed)) continue;
-                if (/^[•]/.test(trimmed)) continue;
+                if (/^[\u2022]/.test(trimmed)) continue;
 
                 let name = '';
 
                 // Match u/username first
-                const uMatch = trimmed.match(/^u\/([a-zA-Z0-9_-]{3,20})/i);
+                const uMatch = trimmed.match(/^u\/([a-zA-Z0-9_.-]{3,20})/i);
                 if (uMatch) {
                     name = uMatch[1];
                 } else {
-                    // Match plain username (no prefix, 3-20 chars, starts with letter)
-                    const plainMatch = trimmed.match(/^([a-zA-Z][a-zA-Z0-9_-]{2,20})$/i);
+                    // Match plain username (3-20 chars, starts with letter, no dots/spaces)
+                    // Dots not allowed in Reddit usernames, so exclude them to avoid matching URLs
+                    const plainMatch = trimmed.match(/^([a-zA-Z][a-zA-Z0-9_-]{2,19})$/i);
                     if (plainMatch) {
                         name = plainMatch[1];
                     }
@@ -426,13 +428,13 @@ John Smith"></textarea>
 
                 if (!name) continue;
 
-                // Skip ad accounts
-                if (adAccounts.some(ad => name.toLowerCase().includes(ad))) {
+                // Skip ad accounts (exact match only)
+                if (adAccounts.some(ad => name.toLowerCase() === ad)) {
                     excludedCount++;
                     continue;
                 }
 
-                const isExcluded = excludedList.some(ex => 
+                const isExcluded = excludedList.some(ex =>
                     ex.toLowerCase() === name.toLowerCase()
                 );
                 if (isExcluded) {
@@ -445,8 +447,7 @@ John Smith"></textarea>
 
             let finalNames = dedupState ? [...new Set(names)] : names;
             return { names: finalNames, excludedCount };
-        }
-function extractNamesTelegram(text) {
+        }function extractNamesTelegram(text) {
     // Telegram: [timestamp] username: message OR timestamp] username: message
     const normalized = text.replace(/\r\n/g, '\n');
     const lines = normalized.split('\n');

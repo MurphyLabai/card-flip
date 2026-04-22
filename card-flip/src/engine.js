@@ -266,6 +266,7 @@ export function setupScene(canvas) {
     camera.updateProjectionMatrix();
   }
   window.addEventListener('resize', onResize);
+  onResize(); // immediately set correct size
 
   let rafId;
   function render() {

@@ -61,7 +61,7 @@ function buildUI() {
   if (state.history.length === 0) {
     histDiv.innerHTML = '<div class="hist-empty">No flips yet</div>';
   } else {
-    histDiv.innerHTML = state.history.map(h =>
+    histDiv.innerHTML = [...state.history].reverse().map(h =>
       `<div class="hist-item">
         <span class="hist-time">${h.time}</span>
         <span class="hist-cards">${h.cards.join(' · ')}</span>

@@ -54,10 +54,11 @@ function buildUI() {
       state.history = [];
       state.phase = 'setup';
       clearSceneCards();
+      try { sessionStorage.setItem('pp_card_history', JSON.stringify([])); } catch(e) {}
       document.getElementById('flip-count-display').textContent = '';
       document.getElementById('flip-btn').textContent = 'FLIP CARDS';
+      document.getElementById('history-list').innerHTML = '<div style="color: #555; font-size: 0.8rem; text-align: center; padding: 20px 0;">No flips yet</div>';
       buildUI();
-      saveHistory();
     };
     deckBtns.appendChild(btn);
   });
@@ -167,15 +168,15 @@ function loadHistory() {
 }
 
 document.getElementById('clear-btn').onclick = () => {
-  state.phase = 'setup';
-  state.shoe = [];
   state.history = [];
-  saveHistory();
+  state.shoe = [];
+  state.phase = 'setup';
+  try { sessionStorage.setItem('pp_card_history', JSON.stringify([])); } catch(e) {}
   clearSceneCards();
+  const histDiv = document.getElementById('history-list');
+  histDiv.innerHTML = '<div style="color: #555; font-size: 0.8rem; text-align: center; padding: 20px 0;">No flips yet</div>';
   document.getElementById('flip-btn').textContent = 'FLIP CARDS';
   document.getElementById('flip-count-display').textContent = '';
-  document.getElementById('back-btn').style.display = 'none';
-  buildUI();
 };
 
 // ── Go ───────────────────────────────────────────────────────────────────

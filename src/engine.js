@@ -232,20 +232,13 @@ export function setupScene(canvas) {
   canvas.width = w;
   canvas.height = h;
 
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.setSize(w, h, false);
+  renderer.setClearColor(0x000000, 0);
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x111111);
-
-  // Backdrop image plane — stretched wide to fill the scene
-  const backdropTex = new THREE.TextureLoader().load('/backdrop.png');
-  const backdropGeo = new THREE.PlaneGeometry(52, 20);
-  const backdropMat = new THREE.MeshBasicMaterial({ map: backdropTex, side: THREE.FrontSide });
-  const backdrop = new THREE.Mesh(backdropGeo, backdropMat);
-  backdrop.position.set(0, 4, -10);
-  scene.add(backdrop);
+  scene.background = null;
 
   const camera = new THREE.PerspectiveCamera(55, w / h, 0.1, 100);
   camera.position.set(0, 7.5, 9.5);
@@ -261,13 +254,6 @@ export function setupScene(canvas) {
   const point = new THREE.PointLight(0xd4af37, 0.6, 12);
   point.position.set(0, 3, 3);
   scene.add(point);
-
-  const feltGeom = new THREE.PlaneGeometry(20, 15);
-  const feltMat = new THREE.MeshStandardMaterial({ color: 0x1a3d1a, roughness: 1 });
-  const felt = new THREE.Mesh(feltGeom, feltMat);
-  felt.rotation.x = -Math.PI / 2;
-  felt.position.y = -0.5;
-  scene.add(felt);
 
   function onResize() {
     const w = container.clientWidth;

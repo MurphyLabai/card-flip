@@ -237,7 +237,15 @@ export function setupScene(canvas) {
   renderer.setSize(w, h, false);
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x0d1a0d);
+  scene.background = new THREE.Color(0x111111);
+
+  // Backdrop image plane — stretched wide to fill the scene
+  const backdropTex = new THREE.TextureLoader().load('/backdrop.png');
+  const backdropGeo = new THREE.PlaneGeometry(52, 20);
+  const backdropMat = new THREE.MeshBasicMaterial({ map: backdropTex, side: THREE.FrontSide });
+  const backdrop = new THREE.Mesh(backdropGeo, backdropMat);
+  backdrop.position.set(0, 4, -10);
+  scene.add(backdrop);
 
   const camera = new THREE.PerspectiveCamera(55, w / h, 0.1, 100);
   camera.position.set(0, 7.5, 9.5);

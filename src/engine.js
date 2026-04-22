@@ -17,37 +17,35 @@ export function makeFaceTex(card) {
   const suit = SUITS[card.suit];
   const isRed = suit.color === '#c41e3a';
 
-  ctx.fillStyle = '#f5f5f0';
+  ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, 256, 360);
-  ctx.strokeStyle = '#d4af37';
-  ctx.lineWidth = 6;
-  ctx.strokeRect(4, 4, 248, 352);
+  ctx.strokeStyle = '#000000';
+  ctx.lineWidth = 7;
+  ctx.strokeRect(2, 2, 252, 356);
 
   ctx.fillStyle = isRed ? '#c41e3a' : '#1a1a1a';
-  ctx.font = 'bold 36px Georgia, serif';
+  ctx.font = 'bold 44px Georgia, serif';
   ctx.textAlign = 'left';
-  ctx.fillText(card.rank, 16, 46);
-  ctx.font = '34px serif';
-  ctx.fillText(suit.symbol, 16, 80);
+  ctx.fillText(card.rank, 12, 50);
+  ctx.font = 'bold 40px serif';
+  ctx.fillText(suit.symbol, 14, 86);
 
   ctx.save();
   ctx.translate(256, 360);
   ctx.rotate(Math.PI);
   ctx.fillStyle = isRed ? '#c41e3a' : '#1a1a1a';
-  ctx.font = 'bold 36px Georgia, serif';
+  ctx.font = 'bold 42px Georgia, serif';
   ctx.textAlign = 'left';
-  ctx.fillText(card.rank, 16, 46);
-  ctx.font = '34px serif';
-  ctx.fillText(suit.symbol, 16, 80);
+  ctx.fillText(card.rank, 14, 48);
+  ctx.font = 'bold 38px serif';
+  ctx.fillText(suit.symbol, 14, 86);
   ctx.restore();
 
-  ctx.font = '120px serif';
+  ctx.font = '140px serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillStyle = suit.color;
-  ctx.globalAlpha = 0.9;
   ctx.fillText(suit.symbol, 128, 185);
-  ctx.globalAlpha = 1;
 
   const tex = new THREE.CanvasTexture(cvs);
   tex.needsUpdate = true;
@@ -86,15 +84,15 @@ export function makeBackTex() {
   ctx.beginPath();
   ctx.arc(128, 180, 28, 0, Math.PI * 2);
   ctx.fill();
+  ctx.strokeStyle = '#000000';
+  ctx.lineWidth = 6;
+  ctx.strokeRect(4, 4, 248, 352);
+
   ctx.fillStyle = '#d4af37';
   ctx.font = 'bold 32px Georgia, serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText('P', 128, 185);
-
-  ctx.strokeStyle = '#d4af37';
-  ctx.lineWidth = 6;
-  ctx.strokeRect(4, 4, 248, 352);
 
   const tex = new THREE.CanvasTexture(cvs);
   tex.needsUpdate = true;
@@ -128,7 +126,7 @@ export function createCardMesh(cardData, frontTex, backTex) {
 
 export async function animateShuffle(cards, scene, deckCount) {
   console.log('[animateShuffle] starting,', cards.length, 'cards, deckCount:', deckCount);
-  const duration = deckCount * 900;
+  const duration = 1200;
   const start = performance.now();
 
   cards.forEach(card => {
@@ -143,10 +141,11 @@ export async function animateShuffle(cards, scene, deckCount) {
 
       cards.forEach((card, i) => {
         const frac = i / (cards.length - 1);
-        const yOff = (eased * (frac < 0.5 ? frac * 2 : (1 - frac) * 2) - 0.5) * 0.9;
-        card.mesh.position.y = yOff;
+        const xSpread = (frac - 0.5) * (cards.length * 1.2);
+        card.mesh.position.x = xSpread * eased;
+        card.mesh.position.y = 0;
         card.mesh.position.z = -i * CARD_D * 0.8;
-        card.mesh.rotation.z = Math.sin(eased * Math.PI + frac * Math.PI * 5) * 0.06;
+        card.mesh.rotation.z = 0;
         card.mesh.rotation.y = Math.PI;
       });
 
@@ -154,7 +153,8 @@ export async function animateShuffle(cards, scene, deckCount) {
         requestAnimationFrame(step);
       } else {
         cards.forEach((card, i) => {
-          card.mesh.position.set(0, 0, -i * CARD_D * 0.8);
+          const xSpread = (i / (cards.length - 1) - 0.5) * (cards.length * 1.2);
+          card.mesh.position.set(xSpread, 0, -i * CARD_D * 0.8);
           card.mesh.rotation.y = Math.PI;
         });
         console.log('[animateShuffle] done');
@@ -207,16 +207,15 @@ export async function animateFlipIn(cards, scene) {
 }
 
 export function arrangeFan(cards, count) {
-  // Fan across the full width — 10 cards at radius 3.5 fill the screen nicely
-  const fanAngle = 0.30;
-  const startAngle = -(count - 1) * fanAngle / 2;
-  const radius = 4.5;
+  // Left-to-right row with gentle wave — right always on top, wave for texture
+  const spacing = 1.5;
+  const totalWidth = (count - 1) * spacing;
+  const startX = -totalWidth / 2;
 
   cards.forEach((card, i) => {
-    const angle = startAngle + i * fanAngle;
-    card.targetX = Math.sin(angle) * radius;
-    card.targetY = 5.0;
-    card.targetZ = -Math.abs(Math.sin(angle)) * 0.4;
+    card.targetX = startX + i * spacing;
+    card.targetY = 4.7 + (i / (count - 1)) * 0.6;
+    card.targetZ = 0;
   });
 }
 
@@ -241,7 +240,7 @@ export function setupScene(canvas) {
   scene.background = null;
 
   const camera = new THREE.PerspectiveCamera(55, w / h, 0.1, 100);
-  camera.position.set(0, 7.5, 9.5);
+  camera.position.set(0, 7.5, 11.0);
   camera.lookAt(0, 5.5, 0);
 
   const ambient = new THREE.AmbientLight(0xfff8e8, 1.0);

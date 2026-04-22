@@ -35,7 +35,7 @@ function animateLoop() {
 }
 
 // ── UI ────────────────────────────────────────────────────────────────────
-const deckOptions = [1, 2, 4, 6];
+const deckOptions = [1, 2, 4, 6, 8, 10];
 const flipOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
 function buildUI() {
@@ -52,9 +52,10 @@ function buildUI() {
       state.deckCount = n;
       state.shoe = [];
       state.history = [];
+      state.phase = 'setup';
+      clearSceneCards();
       document.getElementById('flip-count-display').textContent = '';
       document.getElementById('flip-btn').textContent = 'FLIP CARDS';
-      document.getElementById('back-btn').style.display = 'none';
       buildUI();
       saveHistory();
     };
@@ -132,20 +133,10 @@ async function handleFlip() {
   flipBtn.textContent = 'Flip Again';
   document.getElementById('flip-count-display').textContent =
     `${state.flipCount} Card${state.flipCount > 1 ? 's' : ''} — ${state.shoe.length} left in shoe`;
-  document.getElementById('back-btn').style.display = 'block';
   buildUI();
 }
 
-// ── Back ──────────────────────────────────────────────────────────────────
-document.getElementById('back-btn').onclick = () => {
-  state.phase = 'setup';
-  state.shoe = [];
-  document.getElementById('flip-btn').textContent = 'FLIP CARDS';
-  document.getElementById('flip-count-display').textContent = '';
-  document.getElementById('back-btn').style.display = 'none';
-  clearSceneCards();
-  buildUI();
-};
+// ── Clear / Restart ────────────────────────────────────────────────────────
 
 function clearSceneCards() {
   if (!sceneObj) return;
@@ -176,8 +167,14 @@ function loadHistory() {
 }
 
 document.getElementById('clear-btn').onclick = () => {
+  state.phase = 'setup';
+  state.shoe = [];
   state.history = [];
   saveHistory();
+  clearSceneCards();
+  document.getElementById('flip-btn').textContent = 'FLIP CARDS';
+  document.getElementById('flip-count-display').textContent = '';
+  document.getElementById('back-btn').style.display = 'none';
   buildUI();
 };
 

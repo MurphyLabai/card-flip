@@ -45,7 +45,11 @@ function buildUI() {
     const btn = document.createElement('button');
     btn.className = `pill${n === state.deckCount ? ' active' : ''}`;
     btn.textContent = n + (n === 1 ? ' Deck' : ' Decks');
-    btn.onclick = () => { state.deckCount = n; buildUI(); };
+    btn.onclick = () => { state.deckCount = n; state.shoe = []; state.history = [];
+      document.getElementById('flip-count-display').textContent = '';
+      document.getElementById('flip-btn').textContent = 'FLIP CARDS';
+      document.getElementById('back-btn').style.display = 'none';
+      buildUI(); saveHistory(); };
     deckBtns.appendChild(btn);
   });
 

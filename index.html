@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Card Flip — PromoPlay</title>
+  <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Passero+One&display=swap" rel="stylesheet"/>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1f1f1f 100%);
+      height: 100vh;
+      color: #e8e8e8;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .page {
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ── */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .header-logo {
+      height: 70px;
+      width: 70px;
+      vertical-align: middle;
+      flex-shrink: 0;
+    }
+    .header h1 {
+      font-family: 'Audiowide', sans-serif;
+      font-size: 2rem;
+      color: #ff311d;
+      -webkit-text-stroke: 1.5px #ffffff;
+      paint-order: stroke fill;
+    }
+
+    /* ── Layout ── */
+    .app-layout {
+      display: flex;
+      gap: 20px;
+      max-width: 1100px;
+      width: 100%;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    /* ── Canvas section (left) ── */
+    .canvas-section {
+      flex: 0 0 auto;
+      width: calc(100% - 320px);
+      min-height: 500px;
+      display: flex;
+      flex-direction: column;
+    }
+    #canvas-container {
+      flex: 1;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.85);
+      background: #111;
+      position: relative;
+      min-height: 450px;
+    }
+    #canvas-container canvas {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+    }
+    #flip-count-display {
+      text-align: center;
+      margin-top: 14px;
+      min-height: 32px;
+      font-family: 'Audiowide', sans-serif;
+      font-size: 1.1rem;
+      color: #e8e8e8;
+    }
+
+    /* ── Sidebar (right) ── */
+    .sidebar {
+      width: 300px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* ── Card panels ── */
+    .card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.85);
+      border-radius: 16px;
+      padding: 18px;
+    }
+    .card h3 {
+      font-family: 'Audiowide', sans-serif;
+      font-size: 0.9rem;
+      color: #3498db;
+      margin-bottom: 14px;
+    }
+
+    /* ── Option pills ── */
+    .option-group { margin-bottom: 16px; }
+    .option-group:last-child { margin-bottom: 0; }
+    .option-label {
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: rgba(255,255,255,0.5);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      font-family: 'Audiowide', sans-serif;
+    }
+    .pill-group {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .pill {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 50px;
+      padding: 6px 14px;
+      color: rgba(255,255,255,0.6);
+      font-family: 'Audiowide', sans-serif;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 1px;
+    }
+    .pill:hover { background: rgba(255,255,255,0.12); transform: translateY(-1px); }
+    .pill.active {
+      background: rgba(212,175,55,0.2);
+      border-color: #d4af37;
+      color: #d4af37;
+      box-shadow: 0 0 12px rgba(212,175,55,0.3);
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      padding: 14px 20px;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-family: 'Audiowide', sans-serif;
+      cursor: pointer;
+      width: 100%;
+      transition: all 0.2s;
+      margin-top: 4px;
+    }
+    .btn-flip {
+      background: linear-gradient(135deg, #2ecc71, #27ae60);
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(46,204,113,0.3);
+      font-size: 1.1rem;
+      letter-spacing: 2px;
+    }
+    .btn-flip:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 25px rgba(46,204,113,0.4);
+    }
+    .btn-flip:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .btn-back {
+      background: rgba(255,255,255,0.1);
+      color: #aaa;
+      border: 1px solid rgba(255,255,255,0.2);
+      margin-top: 8px;
+      display: none;
+    }
+    .btn-back:hover { background: rgba(255,255,255,0.15); color: #fff; }
+
+    .btn-reset {
+      background: rgba(255,255,255,0.1);
+      color: #aaa;
+      border: 1px solid rgba(255,255,255,0.2);
+      margin-top: 8px;
+    }
+    .btn-reset:hover { background: rgba(255,255,255,0.15); color: #fff; }
+
+    /* ── History ── */
+    .history-card { flex: 1; }
+    #history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 260px;
+      overflow-y: auto;
+    }
+    .history-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 12px;
+      background: rgba(0,0,0,0.2);
+      border-radius: 8px;
+      font-size: 0.8rem;
+    }
+    .history-time { color: #666; }
+    .history-cards {
+      font-weight: bold;
+      font-family: 'Audiowide', sans-serif;
+      letter-spacing: 1px;
+      color: #d4af37;
+    }
+
+    /* ── Footer ── */
+    footer {
+      margin-top: 30px;
+      text-align: center;
+      font-size: 1rem;
+      color: #888;
+      line-height: 1.8;
+      max-width: 1100px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    footer a { color: #aaa; text-decoration: none; }
+    footer a:hover { color: #fff; }
+
+    @media (max-width: 800px) {
+      .app-layout { flex-direction: column; }
+      .sidebar { width: 100%; }
+      #canvas-container { height: 350px; }
+    }
+
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.3); border-radius: 2px; }
+  </style>
+</head>
+<body>
+
+  <div class="page">
+
+    <div class="header">
+      <a href="https://promoplay.ca" target="_blank">
+        <img src="/promoplay-logo.jpg" alt="PromoPlay Logo" class="header-logo" />
+      </a>
+      <h1>Card Flip</h1>
+    </div>
+
+    <div class="app-layout">
+      <!-- Left: canvas area -->
+      <div class="canvas-section">
+        <div id="canvas-container">
+          <canvas id="canvas"></canvas>
+        </div>
+        <div id="flip-count-display"></div>
+      </div>
+
+      <!-- Right: sidebar -->
+      <div class="sidebar">
+
+        <div class="card">
+          <h3>Options</h3>
+          <div class="option-group">
+            <div class="option-label">Number of Decks</div>
+            <div class="pill-group" id="deck-btns"></div>
+          </div>
+          <div class="option-group">
+            <div class="option-label">Cards Per Flip</div>
+            <div class="pill-group" id="flip-btns"></div>
+          </div>
+          <button class="btn btn-flip" id="flip-btn">FLIP CARDS</button>
+          <button class="btn btn-back" id="back-btn">← Back</button>
+        </div>
+
+        <div class="card history-card">
+          <h3>Flip History</h3>
+          <div id="history-list">
+            <div style="color: #555; font-size: 0.8rem; text-align: center; padding: 20px 0;">
+              No flips yet
+            </div>
+          </div>
+          <button class="btn btn-reset" id="clear-btn">Clear History</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <span style="font-family: 'Audiowide', sans-serif; font-size: 1rem; color: #aaa;">Contact support - <a href="mailto:support@promoplay.ca" style="color: #aaa; text-decoration: none;">support@promoplay.ca</a></span><br>
+    <span style="font-family: 'Audiowide', sans-serif; font-size: 1rem; color: #888;">Powered by <a href="https://promoplay.ca" target="_blank" style="color: #888; text-decoration: none;">PromoPlay.ca</a> All rights reserved 2026</span>
+  </footer>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

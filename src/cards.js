@@ -8,13 +8,22 @@ export const SUITS = {
 };
 
 export const RANKS = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+export const JOKERS = [
+  { rank: 'JOKER', suit: 'joker', id: 'joker-0' },
+  { rank: 'JOKER', suit: 'joker', id: 'joker-1' },
+];
 
-export function createDeck(count = 1) {
+export function createDeck(count = 1, includeJokers = false) {
   const shoe = [];
   for (let d = 0; d < count; d++) {
     for (const suit of Object.keys(SUITS)) {
       for (const rank of RANKS) {
         shoe.push({ suit, rank, id: `${suit}-${rank}-d${d}` });
+      }
+    }
+    if (includeJokers) {
+      for (const joker of JOKERS) {
+        shoe.push({ suit: 'joker', rank: 'JOKER', id: `${joker.id}-d${d}` });
       }
     }
   }
@@ -36,6 +45,7 @@ export function drawCards(shoe, count) {
 }
 
 export function cardName(card) {
+  if (card.suit === 'joker') return 'JOKER';
   return `${card.rank}${SUITS[card.suit].symbol}`;
 }
 

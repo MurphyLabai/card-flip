@@ -2,11 +2,12 @@ import * as THREE from 'three';
 import { createDeck, shuffleShoe, drawCards, cardName } from './cards.js';
 import { setupScene, createCardMesh, arrangeFan, animateShuffle, animateFlipIn, makeFaceTex, makeBackTex } from './engine.js';
 
-// ── State ────────────────────────────────────────────────────────────────────
+// -- State --------------------------------------------------------------------
 let state = {
   phase: 'setup',
   deckCount: 1,
   flipCount: 2,
+  excludeJokers: false,
   shoe: [],
   drawnCards: [],
   history: [],
@@ -14,16 +15,29 @@ let state = {
 
 let sceneObj = null;
 
-// ── Init ─────────────────────────────────────────────────────────────────────
+// -- Init ---------------------------------------------------------------------
 function init() {
+  console.log('[init] starting');
   const canvas = document.getElementById('canvas');
   loadHistory();
   sceneObj = setupScene(canvas);
   buildUI();
   requestAnimationFrame(animateLoop);
+
+  document.getElementById('joker-toggle').addEventListener('change', e => {
+    state.excludeJokers = e.target.checked;
+    state.shoe = [];
+    state.history = [];
+    state.phase = 'setup';
+    clearSceneCards();
+    try { sessionStorage.setItem('pp_card_history', JSON.stringify([])); } catch(er) {}
+    document.getElementById('flip-count-display').textContent = '';
+    document.getElementById('flip-btn').textContent = 'FLIP CARDS';
+    document.getElementById('history-list').innerHTML = '<div style="color: #555; font-size: 0.8rem; text-align: center; padding: 20px 0;">No flips yet</div>';
+  });
 }
 
-// ── Render loop ────────────────────────────────────────────────────────────
+// -- Render loop ------------------------------------------------------------
 function animateLoop() {
   requestAnimationFrame(animateLoop);
   if (!sceneObj) return;
@@ -34,11 +48,12 @@ function animateLoop() {
   }
 }
 
-// ── UI ────────────────────────────────────────────────────────────────────
+// -- UI --------------------------------------------------------------------
 const deckOptions = [1, 2, 4, 6, 8, 10];
 const flipOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
 function buildUI() {
+  console.log('[buildUI] building UI, deckCount:', state.deckCount, 'flipCount:', state.flipCount);
   const deckBtns = document.getElementById('deck-btns');
   const flipBtns = document.getElementById('flip-btns');
   const histDiv = document.getElementById('history-list');
@@ -78,22 +93,22 @@ function buildUI() {
     histDiv.innerHTML = [...state.history].reverse().map(h =>
       `<div class="history-item">
         <span class="history-time">${h.time}</span>
-        <span class="history-cards">${h.cards.join(' · ')}</span>
+        <span class="history-cards">${h.cards.join(' � ')}</span>
       </div>`
     ).join('');
   }
 }
 
-// ── Flip ──────────────────────────────────────────────────────────────────
+// -- Flip ------------------------------------------------------------------
 document.getElementById('flip-btn').onclick = handleFlip;
 
 async function handleFlip() {
-  console.log('[handleFlip] clicked, phase:', state.phase);
+  console.log('[handleFlip] clicked, phase:', state.phase, 'deckCount:', state.deckCount, 'excludeJokers:', state.excludeJokers);
   if (state.phase === 'shuffling' || state.phase === 'flipping') return;
   if (!sceneObj) { console.log('[handleFlip] no sceneObj!'); return; }
 
   if (state.shoe.length === 0) {
-    state.shoe = shuffleShoe(createDeck(state.deckCount));
+    state.shoe = shuffleShoe(createDeck(state.deckCount, !state.excludeJokers));
   }
 
   state.phase = 'shuffling';
@@ -133,11 +148,11 @@ async function handleFlip() {
   flipBtn.disabled = false;
   flipBtn.textContent = 'Flip Again';
   document.getElementById('flip-count-display').textContent =
-    `${state.flipCount} Card${state.flipCount > 1 ? 's' : ''} — ${state.shoe.length} left in shoe`;
+    `${state.flipCount} Card${state.flipCount > 1 ? 's' : ''} � ${state.shoe.length} left in shoe`;
   buildUI();
 }
 
-// ── Clear / Restart ────────────────────────────────────────────────────────
+// -- Clear / Restart --------------------------------------------------------
 
 function clearSceneCards() {
   if (!sceneObj) return;
@@ -156,7 +171,7 @@ function clearSceneCards() {
   });
 }
 
-// ── History ──────────────────────────────────────────────────────────────
+// -- History --------------------------------------------------------------
 function saveHistory() {
   try { sessionStorage.setItem('pp_card_history', JSON.stringify(state.history)); } catch(e) {}
 }
@@ -179,5 +194,6 @@ document.getElementById('clear-btn').onclick = () => {
   document.getElementById('flip-count-display').textContent = '';
 };
 
-// ── Go ───────────────────────────────────────────────────────────────────
+// -- Go -------------------------------------------------------------------
 init();
+

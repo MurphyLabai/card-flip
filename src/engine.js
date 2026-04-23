@@ -14,8 +14,10 @@ export function makeFaceTex(card) {
   cvs.width = 256;
   cvs.height = 360;
   const ctx = cvs.getContext('2d');
-  const suit = SUITS[card.suit];
-  const isRed = suit.color === '#c41e3a';
+  const isJoker = card.suit === 'joker';
+  const suit = isJoker ? null : SUITS[card.suit];
+  const isRed = suit ? suit.color === '#c41e3a' : false;
+
 
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, 256, 360);
@@ -23,29 +25,40 @@ export function makeFaceTex(card) {
   ctx.lineWidth = 7;
   ctx.strokeRect(2, 2, 252, 356);
 
-  ctx.fillStyle = isRed ? '#c41e3a' : '#1a1a1a';
-  ctx.font = 'bold 44px Georgia, serif';
-  ctx.textAlign = 'left';
-  ctx.fillText(card.rank, 12, 50);
-  ctx.font = 'bold 40px serif';
-  ctx.fillText(suit.symbol, 14, 86);
+  if (isJoker) {
+    ctx.fillStyle = '#1a1a1a';
+    ctx.font = 'bold 36px Georgia, serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('JOKER', 12, 50);
+    ctx.font = '120px serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('🃏', 128, 185);
+  } else {
+    ctx.fillStyle = isRed ? '#c41e3a' : '#1a1a1a';
+    ctx.font = 'bold 44px Georgia, serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(card.rank, 12, 50);
+    ctx.font = 'bold 40px serif';
+    ctx.fillText(suit.symbol, 14, 86);
 
-  ctx.save();
-  ctx.translate(256, 360);
-  ctx.rotate(Math.PI);
-  ctx.fillStyle = isRed ? '#c41e3a' : '#1a1a1a';
-  ctx.font = 'bold 42px Georgia, serif';
-  ctx.textAlign = 'left';
-  ctx.fillText(card.rank, 14, 48);
-  ctx.font = 'bold 38px serif';
-  ctx.fillText(suit.symbol, 14, 86);
-  ctx.restore();
+    ctx.save();
+    ctx.translate(256, 360);
+    ctx.rotate(Math.PI);
+    ctx.fillStyle = isRed ? '#c41e3a' : '#1a1a1a';
+    ctx.font = 'bold 42px Georgia, serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(card.rank, 14, 48);
+    ctx.font = 'bold 38px serif';
+    ctx.fillText(suit.symbol, 14, 86);
+    ctx.restore();
 
-  ctx.font = '140px serif';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillStyle = suit.color;
-  ctx.fillText(suit.symbol, 128, 185);
+    ctx.font = '140px serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = suit.color;
+    ctx.fillText(suit.symbol, 128, 185);
+  }
 
   const tex = new THREE.CanvasTexture(cvs);
   tex.needsUpdate = true;

@@ -2,6 +2,20 @@ import * as THREE from 'three';
 import { createDeck, shuffleShoe, drawCards, cardName } from './cards.js';
 import { setupScene, createCardMesh, arrangeFan, animateShuffle, animateFlipIn, makeFaceTex, makeBackTex } from './engine.js';
 
+// -- Audio --------------------------------------------------------------------
+let soundEnabled = localStorage.getItem('pp_cardflip_sound') !== 'false';
+const flipAudio = new Audio('/card-flip.mp3');
+flipAudio.loop = true;
+flipAudio.playbackRate = 1.75;
+const soundToggle = document.getElementById('sound-toggle');
+if (soundToggle) {
+  soundToggle.checked = soundEnabled;
+  soundToggle.addEventListener('change', () => {
+    soundEnabled = soundToggle.checked;
+    localStorage.setItem('pp_cardflip_sound', soundEnabled);
+  });
+}
+
 // -- State --------------------------------------------------------------------
 let state = {
   phase: 'setup',
@@ -61,7 +75,7 @@ const deckOptions = [1, 2, 4, 6, 8, 10];
 const flipOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
 function buildUI() {
-  console.log('[buildUI] building UI, deckCount:', state.deckCount, 'flipCount:', state.flipCount);
+
   const deckBtns = document.getElementById('deck-btns');
   const flipBtns = document.getElementById('flip-btns');
   const histDiv = document.getElementById('history-list');
@@ -112,7 +126,7 @@ function buildUI() {
 document.getElementById('flip-btn').onclick = handleFlip;
 
 async function handleFlip() {
-  console.log('[handleFlip] clicked, phase:', state.phase, 'deckCount:', state.deckCount, 'excludeJokers:', state.excludeJokers);
+
   if (state.phase === 'shuffling' || state.phase === 'flipping') return;
   if (!sceneObj) { console.log('[handleFlip] no sceneObj!'); return; }
 
@@ -136,12 +150,12 @@ async function handleFlip() {
     shoeMeshes.push({ mesh, card: state.shoe[i] });
   }
 
-  console.log('[handleFlip] calling animateShuffle with', shoeMeshes.length, 'cards');
   await animateShuffle(shoeMeshes, sceneObj.scene, state.deckCount);
 
   state.drawnCards = drawCards(state.shoe, state.flipCount);
   state.phase = 'flipping';
   flipBtn.textContent = 'Flipping...';
+  if (soundEnabled) { flipAudio.play().catch(() => {}); }
 
   const flipMeshes = shoeMeshes.slice(0, state.flipCount);
   arrangeFan(flipMeshes, flipMeshes.length);
@@ -156,6 +170,8 @@ async function handleFlip() {
 
   flipBtn.disabled = false;
   flipBtn.textContent = 'Flip Again';
+  flipAudio.pause();
+  flipAudio.currentTime = 0;
   document.getElementById('flip-count-display').textContent = state.flipCount + ' Cards Removed - ' + state.shoe.length + ' left in shoe';
   buildUI();
 }

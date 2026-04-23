@@ -127,12 +127,12 @@ export function createCardMesh(cardData, frontTex, backTex) {
   group.rotation.x = -0.25;
   group.position.y = 1.8;
 
-  console.log('[createCardMesh] created, rotation.x=-0.25, position.y=1.8');
+
   return group;
 }
 
 export async function animateShuffle(cards, scene, deckCount) {
-  console.log('[animateShuffle] starting,', cards.length, 'cards, deckCount:', deckCount);
+
   const duration = 1200;
   const start = performance.now();
 
@@ -147,7 +147,7 @@ export async function animateShuffle(cards, scene, deckCount) {
       const eased = easeInOutCubic(t);
 
       cards.forEach((card, i) => {
-        const frac = i / (cards.length - 1);
+        const frac = cards.length === 1 ? 0.5 : i / (cards.length - 1);
         const xSpread = (frac - 0.5) * (cards.length * 1.386);
         card.mesh.position.x = xSpread * eased;
         card.mesh.position.y = 0;
@@ -160,11 +160,12 @@ export async function animateShuffle(cards, scene, deckCount) {
         requestAnimationFrame(step);
       } else {
         cards.forEach((card, i) => {
-          const xSpread = (i / (cards.length - 1) - 0.5) * (cards.length * 1.386);
+          const frac = cards.length === 1 ? 0.5 : i / (cards.length - 1);
+          const xSpread = (frac - 0.5) * (cards.length * 1.386);
           card.mesh.position.set(xSpread, 0, -i * CARD_D * 0.8);
           card.mesh.rotation.y = Math.PI;
         });
-        console.log('[animateShuffle] done');
+
         resolve();
       }
     }
@@ -174,7 +175,7 @@ export async function animateShuffle(cards, scene, deckCount) {
 
 export async function animateFlipIn(cards, scene) {
   const flipDuration = 700;
-  const staggerDelay = 200;
+  const staggerDelay = cards.length === 1 ? 50 : 200;
   const start = performance.now();
 
   return new Promise(resolve => {
@@ -188,9 +189,10 @@ export async function animateFlipIn(cards, scene) {
         const t = Math.min(cardT / flipDuration, 1);
         const eased = easeInOutCubic(t);
 
-        const tx = card.targetX, ty = card.targetY, tz = card.targetZ || 0;
-
-        card.mesh.position.x = tx * eased;
+        const tx = card.targetX;
+        const ty = card.targetY;
+        const tz = card.targetZ || 0;
+        card.mesh.position.x = tx;
         card.mesh.position.y = ty * eased;
         card.mesh.position.z = -0.5 + (tz + 0.5) * eased;
 
@@ -198,11 +200,18 @@ export async function animateFlipIn(cards, scene) {
         card.mesh.rotation.y = Math.PI * (1 - eased) + overshoot;
         card.mesh.rotation.z = (card.targetRot || 0) * eased;
 
+        // Scale pop for single card flip (1.0 → 1.12 → 1.0)
+        if (cards.length === 1) {
+          const scalePop = 1 + Math.sin(eased * Math.PI) * 0.12;
+          card.mesh.scale.set(scalePop, scalePop, 1);
+        }
+
         if (t < 1) {
           requestAnimationFrame(step);
         } else {
           card.mesh.rotation.y = 0;
           card.mesh.position.set(tx, ty, tz);
+          if (cards.length === 1) card.mesh.scale.set(1, 1, 1);
           completed++;
           if (completed === cards.length) resolve();
         }
@@ -214,14 +223,14 @@ export async function animateFlipIn(cards, scene) {
 }
 
 export function arrangeFan(cards, count) {
-  // Left-to-right row with gentle wave — right always on top, wave for texture
+  // Left-to-right row with gentle wave - right always on top, wave for texture
   const spacing = 1.5;
   const totalWidth = (count - 1) * spacing;
   const startX = -totalWidth / 2;
 
   cards.forEach((card, i) => {
     card.targetX = startX + i * spacing;
-    card.targetY = 4.7 + (i / (count - 1)) * 0.6;
+    card.targetY = 4.7 + (i / Math.max(count - 1, 1)) * 0.6;
     card.targetZ = 0;
   });
 }
@@ -230,10 +239,10 @@ export function setupScene(canvas) {
   const container = canvas.parentElement;
   const containerW = container.clientWidth;
   const containerH = container.clientHeight;
-  console.log('[setupScene] container dimensions:', containerW, containerH);
+
   const w = Math.max(containerW, 600);
   const h = Math.max(containerH, 450);
-  console.log('[setupScene] canvas pixel dimensions:', w, h);
+
 
   canvas.width = w;
   canvas.height = h;

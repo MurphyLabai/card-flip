@@ -15,6 +15,14 @@ let state = {
 
 let sceneObj = null;
 
+// -- Helpers -------------------------------------------------------------------
+function getCardColor(card) {
+  if (card === 'JOKER') return 'joker-text';
+  const last = card[card.length - 1];
+  if (last === '\u2665' || last === '\u2666') return 'red-card-text';
+  return 'black-card-text';
+}
+
 // -- Init ---------------------------------------------------------------------
 function init() {
   console.log('[init] starting');
@@ -37,7 +45,7 @@ function init() {
   });
 }
 
-// -- Render loop ------------------------------------------------------------
+// -- Render loop ---------------------------------------------------------------
 function animateLoop() {
   requestAnimationFrame(animateLoop);
   if (!sceneObj) return;
@@ -48,7 +56,7 @@ function animateLoop() {
   }
 }
 
-// -- UI --------------------------------------------------------------------
+// -- UI -----------------------------------------------------------------------
 const deckOptions = [1, 2, 4, 6, 8, 10];
 const flipOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
@@ -61,7 +69,7 @@ function buildUI() {
   deckBtns.innerHTML = '';
   deckOptions.forEach(n => {
     const btn = document.createElement('button');
-    btn.className = `pill${n === state.deckCount ? ' active' : ''}`;
+    btn.className = 'pill' + (n === state.deckCount ? ' active' : '');
     btn.textContent = n + (n === 1 ? ' Deck' : ' Decks');
     btn.onclick = () => {
       state.deckCount = n;
@@ -81,7 +89,7 @@ function buildUI() {
   flipBtns.innerHTML = '';
   flipOptions.forEach(n => {
     const btn = document.createElement('button');
-    btn.className = `pill${n === state.flipCount ? ' active' : ''}`;
+    btn.className = 'pill' + (n === state.flipCount ? ' active' : '');
     btn.textContent = n + (n === 1 ? ' Card' : ' Cards');
     btn.onclick = () => { state.flipCount = n; buildUI(); };
     flipBtns.appendChild(btn);
@@ -91,15 +99,18 @@ function buildUI() {
     histDiv.innerHTML = '<div style="color: #555; font-size: 0.8rem; text-align: center; padding: 20px 0;">No flips yet</div>';
   } else {
     histDiv.innerHTML = [...state.history].reverse().map(h =>
-      `<div class="history-item">
-        <span class="history-time">${h.time}</span>
-        <span class="history-cards">${h.cards.join(' � ')}</span>
-      </div>`
+      '<div class="history-item">' +
+        '<span class="history-time">' + h.time + '</span>' +
+        '<span class="history-cards">' + h.cards.map((c, i) =>
+          '<span class="' + getCardColor(c) + '">' + c + '</span>' +
+          (i < h.cards.length - 1 ? '<span class="history-dash"> - </span>' : '')
+        ).join('') + '</span>' +
+      '</div>'
     ).join('');
   }
 }
 
-// -- Flip ------------------------------------------------------------------
+// -- Flip --------------------------------------------------------------------
 document.getElementById('flip-btn').onclick = handleFlip;
 
 async function handleFlip() {
@@ -147,13 +158,11 @@ async function handleFlip() {
 
   flipBtn.disabled = false;
   flipBtn.textContent = 'Flip Again';
-  document.getElementById('flip-count-display').textContent =
-    `${state.flipCount} Card${state.flipCount > 1 ? 's' : ''} � ${state.shoe.length} left in shoe`;
+  document.getElementById('flip-count-display').textContent = state.flipCount + ' Cards Removed - ' + state.shoe.length + ' left in shoe';
   buildUI();
 }
 
-// -- Clear / Restart --------------------------------------------------------
-
+// -- Clear / Restart -----------------------------------------------------------
 function clearSceneCards() {
   if (!sceneObj) return;
   const scene = sceneObj.scene;
@@ -171,7 +180,7 @@ function clearSceneCards() {
   });
 }
 
-// -- History --------------------------------------------------------------
+// -- History ----------------------------------------------------------------
 function saveHistory() {
   try { sessionStorage.setItem('pp_card_history', JSON.stringify(state.history)); } catch(e) {}
 }
@@ -194,6 +203,4 @@ document.getElementById('clear-btn').onclick = () => {
   document.getElementById('flip-count-display').textContent = '';
 };
 
-// -- Go -------------------------------------------------------------------
 init();
-

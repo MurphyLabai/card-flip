@@ -58,41 +58,35 @@ export function makeBackTex() {
   cvs.height = 360;
   const ctx = cvs.getContext('2d');
 
-  ctx.fillStyle = '#c41e3a';
+  ctx.fillStyle = '#ff0000';
   ctx.fillRect(0, 0, 256, 360);
 
-  ctx.fillStyle = '#a01830';
+  ctx.fillStyle = '#cc0000';
   const step = 18;
   for (let y = 0; y < 360; y += step) {
     for (let x = 0; x < 256; x += step) {
       const ox = (y / step % 2 === 0) ? 0 : step / 2;
       ctx.beginPath();
-      ctx.moveTo(x + ox, y);
-      ctx.lineTo(x + ox + step / 2, y + step / 2);
-      ctx.lineTo(x + ox, y + step);
-      ctx.lineTo(x + ox - step / 2, y + step / 2);
-      ctx.closePath();
+      ctx.arc(x + ox + step / 2, y + step / 2, 3, 0, Math.PI * 2);
       ctx.fill();
     }
   }
 
-  ctx.fillStyle = '#d4af37';
-  ctx.beginPath();
-  ctx.arc(128, 180, 38, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = '#c41e3a';
-  ctx.beginPath();
-  ctx.arc(128, 180, 28, 0, Math.PI * 2);
-  ctx.fill();
   ctx.strokeStyle = '#000000';
   ctx.lineWidth = 6;
   ctx.strokeRect(4, 4, 248, 352);
 
-  ctx.fillStyle = '#d4af37';
-  ctx.font = 'bold 32px Georgia, serif';
+  // Black P with white outline, no circle, bigger
+  ctx.save();
+  ctx.font = 'bold 150px "Passero One", Arial';
+  ctx.strokeStyle = '#ffffff';
+  ctx.lineWidth = 6;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
+  ctx.strokeText('P', 128, 185);
+  ctx.fillStyle = '#000000';
   ctx.fillText('P', 128, 185);
+  ctx.restore();
 
   const tex = new THREE.CanvasTexture(cvs);
   tex.needsUpdate = true;

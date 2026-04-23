@@ -4,9 +4,13 @@ import { setupScene, createCardMesh, arrangeFan, animateShuffle, animateFlipIn, 
 
 // -- Audio --------------------------------------------------------------------
 let soundEnabled = localStorage.getItem('pp_cardflip_sound') !== 'false';
-const flipAudio = new Audio('/card-flip.mp3');
-flipAudio.loop = true;
-flipAudio.playbackRate = 1.75;
+
+const spursAudio = new Audio('/spurs-walk.mp3');
+spursAudio.loop = false;
+
+const shuffleAudio = new Audio('/cards-shuffle.mp3');
+shuffleAudio.loop = false;
+
 const soundToggle = document.getElementById('sound-toggle');
 if (soundToggle) {
   soundToggle.checked = soundEnabled;
@@ -155,7 +159,11 @@ async function handleFlip() {
   state.drawnCards = drawCards(state.shoe, state.flipCount);
   state.phase = 'flipping';
   flipBtn.textContent = 'Flipping...';
-  if (soundEnabled) { flipAudio.play().catch(() => {}); }
+  if (soundEnabled) {
+    spursAudio.currentTime = 0;
+    spursAudio.play().catch(() => {});
+    setTimeout(() => { shuffleAudio.currentTime = 0; shuffleAudio.play().catch(() => {}); }, 200);
+  }
 
   const flipMeshes = shoeMeshes.slice(0, state.flipCount);
   arrangeFan(flipMeshes, flipMeshes.length);
@@ -170,8 +178,8 @@ async function handleFlip() {
 
   flipBtn.disabled = false;
   flipBtn.textContent = 'Flip Again';
-  flipAudio.pause();
-  flipAudio.currentTime = 0;
+  spursAudio.pause();
+  shuffleAudio.pause();
   document.getElementById('flip-count-display').textContent = state.flipCount + ' Cards Removed - ' + state.shoe.length + ' left in shoe';
   buildUI();
 }

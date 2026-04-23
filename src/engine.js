@@ -61,7 +61,7 @@ export function makeBackTex() {
   ctx.fillStyle = '#ff0000';
   ctx.fillRect(0, 0, 256, 360);
 
-  ctx.fillStyle = '#cc0000';
+  ctx.fillStyle = '#888888';
   const step = 18;
   for (let y = 0; y < 360; y += step) {
     for (let x = 0; x < 256; x += step) {
@@ -78,9 +78,9 @@ export function makeBackTex() {
 
   // Black P with white outline, no circle, bigger
   ctx.save();
-  ctx.font = 'bold 150px "Passero One", Arial';
+  ctx.font = 'bold 338px "Passero One", Arial';
   ctx.strokeStyle = '#ffffff';
-  ctx.lineWidth = 6;
+  ctx.lineWidth = 4;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.strokeText('P', 128, 185);

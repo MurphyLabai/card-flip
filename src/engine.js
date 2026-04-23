@@ -91,7 +91,7 @@ export function makeBackTex() {
 
   // Black P with white outline, no circle, bigger
   ctx.save();
-  ctx.font = 'bold 124px "Mr Dafoe", Arial';
+  ctx.font = 'bold 155px "Mr Dafoe", Arial';
   ctx.strokeStyle = '#ffffff';
   ctx.lineWidth = 4;
   ctx.textAlign = 'center';
@@ -148,7 +148,7 @@ export async function animateShuffle(cards, scene, deckCount) {
 
       cards.forEach((card, i) => {
         const frac = i / (cards.length - 1);
-        const xSpread = (frac - 0.5) * (cards.length * 1.2);
+        const xSpread = (frac - 0.5) * (cards.length * 1.386);
         card.mesh.position.x = xSpread * eased;
         card.mesh.position.y = 0;
         card.mesh.position.z = -i * CARD_D * 0.8;
@@ -160,7 +160,7 @@ export async function animateShuffle(cards, scene, deckCount) {
         requestAnimationFrame(step);
       } else {
         cards.forEach((card, i) => {
-          const xSpread = (i / (cards.length - 1) - 0.5) * (cards.length * 1.2);
+          const xSpread = (i / (cards.length - 1) - 0.5) * (cards.length * 1.386);
           card.mesh.position.set(xSpread, 0, -i * CARD_D * 0.8);
           card.mesh.rotation.y = Math.PI;
         });

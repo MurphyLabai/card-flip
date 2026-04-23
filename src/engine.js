@@ -91,7 +91,7 @@ export function makeBackTex() {
 
   // Black P with white outline, no circle, bigger
   ctx.save();
-  ctx.font = 'bold 338px "Passero One", Arial';
+  ctx.font = 'bold 124px "Mr Dafoe", Arial';
   ctx.strokeStyle = '#ffffff';
   ctx.lineWidth = 4;
   ctx.textAlign = 'center';

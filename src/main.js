@@ -100,11 +100,9 @@ function buildUI() {
   } else {
     histDiv.innerHTML = [...state.history].reverse().map(h =>
       '<div class="history-item">' +
-        '<span class="history-time">' + h.time + '</span>' +
-        '<span class="history-cards">' + h.cards.map((c, i) =>
-          '<span class="' + getCardColor(c) + '">' + c + '</span>' +
-          (i < h.cards.length - 1 ? '<span class="history-dash"> - </span>' : '')
-        ).join('') + '</span>' +
+        '<span class="history-time">' + h.time + ' \u2713</span>' +
+        '<span class="history-sep">|</span>' +
+        '<span class="history-cards">' + h.cards.map((c, i) => '<span class="' + getCardColor(c) + '">' + c + '</span>' + (i < h.cards.length - 1 ? '<span class="history-dash"> - </span>' : '')).join('') + '</span>' +
       '</div>'
     ).join('');
   }

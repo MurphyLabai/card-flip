@@ -15,12 +15,49 @@ let musicVolume = parseFloat(localStorage.getItem('pp_cardflip_music_vol') || '0
 let cardSoundVolume = parseFloat(localStorage.getItem('pp_cardflip_sound_vol') || '0.7');
 
 let currentBgMusic = null;
+let currentTrackSrc = null;
+
 function stopBgMusic() {
   if (currentBgMusic) {
     currentBgMusic.pause();
     currentBgMusic = null;
   }
 }
+
+function playMusicTrack(src) {
+  stopBgMusic();
+  const audio = new Audio('/' + src);
+  audio.loop = true;
+  audio.volume = musicVolume;
+  audio.play().catch(() => {});
+  currentBgMusic = audio;
+  currentTrackSrc = src;
+  localStorage.setItem('pp_cardflip_last_music', src);
+  document.querySelectorAll('.music-track').forEach(t => {
+    t.style.borderColor = t.dataset.src === src ? '#d4af37' : 'rgba(255,255,255,0.2)';
+    t.style.color = t.dataset.src === src ? '#d4af37' : 'rgba(255,255,255,0.7)';
+  });
+}
+
+// Wire up music track clicks after DOM is ready
+setTimeout(() => {
+  document.querySelectorAll('.music-track').forEach(track => {
+    track.addEventListener('click', () => {
+      const src = track.dataset.src;
+      if (currentTrackSrc === src) {
+        stopBgMusic();
+        currentTrackSrc = null;
+        track.style.borderColor = 'rgba(255,255,255,0.2)';
+        track.style.color = 'rgba(255,255,255,0.7)';
+      } else {
+        playMusicTrack(src);
+      }
+    });
+  });
+  // Resume last music
+  const last = localStorage.getItem('pp_cardflip_last_music');
+  if (last) playMusicTrack(last);
+}, 500);
 
 // -- State --------------------------------------------------------------------
 let state = {

@@ -249,7 +249,7 @@ function updateMegaStats() {
   const total = state.history.length;
   const remaining = state.shoe.length;
   const lastFlip = state.history.length > 0 ? state.history[state.history.length - 1].cards.length : 0;
-  stats.innerHTML = `<span style="color:#ffffff;font-size:0.85rem;">Total Flips: ${total} &nbsp;|&nbsp; Last: ${lastFlip} Removed &nbsp;|&nbsp; ${remaining} Left</span>`;
+  stats.innerHTML = `<span style="color:#ffffff;font-size:0.85rem;">Total Flips: ${total} &nbsp;|&nbsp; This Flip: ${lastFlip} &nbsp;|&nbsp; ${remaining} Left in Shoe</span>`;
 }
 
 // -- Volume sliders (legacy sidebar - kept for compatibility) ---------------

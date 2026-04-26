@@ -54,9 +54,9 @@ setTimeout(() => {
       }
     });
   });
-  // Resume last music
+  // Auto-start music on page load
   const last = localStorage.getItem('pp_cardflip_last_music');
-  if (last) playMusicTrack(last);
+  playMusicTrack(last || 'card-music-1.mp3');
 }, 500);
 
 // -- State --------------------------------------------------------------------
@@ -318,7 +318,7 @@ if (modalCardSoundToggle) {
 }
 
 if (modalMusicToggle) {
-  modalMusicToggle.checked = currentTrackSrc !== null;
+  modalMusicToggle.checked = true;
   modalMusicToggle.addEventListener('change', () => {
     if (modalMusicToggle.checked) {
       if (!currentBgMusic && modalMusicTrack.value) playMusicTrack(modalMusicTrack.value);

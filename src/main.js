@@ -298,7 +298,6 @@ if (modalCardSoundToggle) {
 }
 
 if (modalMusicToggle) {
-  modalMusicToggle.checked = true;
   modalMusicToggle.addEventListener('change', () => {
     if (modalMusicToggle.checked) {
       if (!currentBgMusic && modalMusicTrack.value) playMusicTrack(modalMusicTrack.value);

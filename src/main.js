@@ -29,7 +29,7 @@ function playMusicTrack(src) {
   const audio = new Audio('/' + src);
   audio.loop = true;
   audio.volume = musicVolume;
-  audio.play().catch(() => {});
+  audio.play().catch(e => console.warn('Audio play failed:', e.message));
   currentBgMusic = audio;
   currentTrackSrc = src;
   localStorage.setItem('pp_cardflip_last_music', src);
@@ -56,7 +56,7 @@ setTimeout(() => {
   });
   // Auto-start music on page load
   const last = localStorage.getItem('pp_cardflip_last_music');
-  playMusicTrack(last || 'card-music-1.mp3');
+  playMusicTrack('card-music-2.mp3');
 }, 500);
 
 // -- State --------------------------------------------------------------------

@@ -272,7 +272,7 @@ function updateMegaStats() {
   stats.innerHTML = `<span style="color:#ffffff;font-size:0.85rem;">Total Flips: ${total} &nbsp;|&nbsp; Last: ${lastFlip} Removed &nbsp;|&nbsp; ${remaining} Left</span>`;
 }
 
-// -- Volume sliders -----------------------------------------------------------
+// -- Volume sliders (legacy sidebar - kept for compatibility) ---------------
 const cardSoundSlider = document.getElementById('card-sound-volume');
 const musicSlider = document.getElementById('music-volume');
 const cardSoundVal = document.getElementById('card-sound-val');
@@ -299,6 +299,47 @@ if (musicSlider) {
     musicVolume = parseInt(musicSlider.value) / 100;
     localStorage.setItem('pp_cardflip_music_vol', musicVolume);
     if (musicVal) musicVal.textContent = musicSlider.value + '%';
+    if (currentBgMusic) currentBgMusic.volume = musicVolume;
+  });
+}
+
+// -- Modal settings controls ------------------------------------------
+const modalCardSoundToggle = document.getElementById('modal-card-sound-toggle');
+const modalMusicToggle = document.getElementById('modal-music-toggle');
+const modalMusicTrack = document.getElementById('modal-music-track');
+const modalMusicVolume = document.getElementById('modal-music-volume');
+
+if (modalCardSoundToggle) {
+  modalCardSoundToggle.checked = soundEnabled;
+  modalCardSoundToggle.addEventListener('change', () => {
+    soundEnabled = modalCardSoundToggle.checked;
+    localStorage.setItem('pp_cardflip_sound', soundEnabled);
+  });
+}
+
+if (modalMusicToggle) {
+  modalMusicToggle.checked = currentTrackSrc !== null;
+  modalMusicToggle.addEventListener('change', () => {
+    if (modalMusicToggle.checked) {
+      if (!currentBgMusic && modalMusicTrack.value) playMusicTrack(modalMusicTrack.value);
+    } else {
+      stopBgMusic();
+      currentTrackSrc = null;
+    }
+  });
+}
+
+if (modalMusicTrack) {
+  modalMusicTrack.addEventListener('change', () => {
+    if (modalMusicToggle.checked) playMusicTrack(modalMusicTrack.value);
+  });
+}
+
+if (modalMusicVolume) {
+  modalMusicVolume.value = Math.round(musicVolume * 100);
+  modalMusicVolume.addEventListener('input', () => {
+    musicVolume = parseInt(modalMusicVolume.value) / 100;
+    localStorage.setItem('pp_cardflip_music_vol', musicVolume);
     if (currentBgMusic) currentBgMusic.volume = musicVolume;
   });
 }

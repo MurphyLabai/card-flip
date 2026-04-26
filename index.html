@@ -57,18 +57,20 @@
       display: flex;
     }
     .settings-box {
-      background: #1e1e2e;
-      border: 1px solid rgba(255,255,255,0.2);
+      background: #1a1a2e;
+      border: 2px solid #d4af37;
       border-radius: 16px;
-      padding: 24px;
-      width: 480px;
+      padding: 28px 32px 28px 32px;
+      width: 420px;
+      box-sizing: border-box;
       max-height: 80vh;
       overflow-y: auto;
       overflow-x: hidden;
+      color: #fff;
+      position: relative;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(128,128,128,0.5) transparent;
     }
-    .settings-box::-webkit-scrollbar { width: 6px; }
-    .settings-box::-webkit-scrollbar-track { background: transparent; }
-    .settings-box::-webkit-scrollbar-thumb { background: rgba(128,128,128,0.5); border-radius: 3px; }
     .settings-box h2 {
       font-family: 'Audiowide', sans-serif;
       color: #d4af37;
@@ -77,25 +79,105 @@
       text-align: center;
       letter-spacing: 2px;
     }
-    .settings-section {
-      margin-bottom: 20px;
+    .settings-box .settings-close {
+      position: absolute;
+      top: 12px;
+      right: 16px;
+      background: none;
+      border: none;
+      color: #888;
+      font-size: 1.4rem;
+      cursor: pointer;
+      line-height: 1;
     }
+    .settings-box .settings-close:hover { color: #fff; }
+    .settings-section { margin-bottom: 22px; }
     .settings-section h3 {
-      font-family: 'Audiowide', sans-serif;
-      font-size: 0.75rem;
-      color: rgba(255,255,255,0.5);
-      letter-spacing: 2px;
-      margin-bottom: 10px;
+      color: #d4af37;
+      font-size: 0.8rem;
       text-transform: uppercase;
+      letter-spacing: 1px;
+      margin: 0 0 10px 0;
+      border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+      padding-bottom: 6px;
     }
-    .settings-section label {
+    .settings-row {
       display: flex;
       align-items: center;
-      gap: 12px;
-      font-size: 0.85rem;
-      color: rgba(255,255,255,0.7);
-      font-family: 'Audiowide', sans-serif;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      font-size: 0.9rem;
     }
+    .settings-row label { color: rgba(255,255,255,0.85); }
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 42px;
+      height: 22px;
+    }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background: rgba(255,255,255,0.15);
+      border-radius: 22px;
+      transition: 0.2s;
+    }
+    .toggle-slider::before {
+      content: '';
+      position: absolute;
+      height: 16px;
+      width: 16px;
+      left: 3px;
+      bottom: 3px;
+      background: white;
+      border-radius: 50%;
+      transition: 0.2s;
+    }
+    .toggle-switch input:checked + .toggle-slider { background: #d4af37; }
+    .toggle-switch input:checked + .toggle-slider::before { transform: translateX(20px); }
+    .music-select {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 8px;
+    }
+    .music-select option { background: #1a1a2e; }
+    .theme-volume-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: rgba(255,255,255,0.2);
+      outline: none;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+    .theme-volume-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #d4af37;
+      cursor: pointer;
+    }
+    .theme-volume-slider::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #d4af37;
+      cursor: pointer;
+      border: none;
+    }
+
     .settings-section label input[type="range"] {
       flex: 1;
       height: 4px;
@@ -118,11 +200,11 @@
       gap: 12px;
     }
     .bg-section-header {
-      font-family: 'Audiowide', sans-serif;
-      font-size: 0.65rem;
-      color: rgba(255,255,255,0.4);
-      letter-spacing: 2px;
-      padding-bottom: 4px;
+      font-size: 0.62rem;
+      font-weight: bold;
+      color: #d4af37;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
     }
     .bg-section-thumbs {
       display: grid;
@@ -133,15 +215,24 @@
       width: 100%;
       aspect-ratio: 16/9;
       border-radius: 6px;
-      border: 2px solid rgba(255,255,255,0.2);
+      border: 2px solid rgba(255,255,255,0.1);
       cursor: pointer;
       overflow: hidden;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      color: rgba(255,255,255,0.4);
+      background: rgba(255,255,255,0.05);
     }
-    .bg-thumb:hover { border-color: rgba(255,255,255,0.5); }
+    .bg-thumb:hover {
+      border-color: rgba(212, 175, 55, 0.5);
+      transform: scale(1.05);
+    }
     .bg-thumb.active {
       border-color: #d4af37;
-      box-shadow: 0 0 8px rgba(212,175,55,0.5);
+      box-shadow: 0 0 8px rgba(212,175,55,0.4);
     }
     .bg-thumb img {
       width: 100%;
@@ -558,36 +649,42 @@
 
     <div id="settings-modal" class="settings-modal">
       <div class="settings-box">
-        <h2>⚙️ SETTINGS</h2>
+        <button class="settings-close" id="settings-close">&times;</button>
+        <h2>Settings</h2>
 
         <div class="settings-section">
-          <h3>🔊 Audio</h3>
-          <label style="margin-bottom:8px;">
-            Card Sounds
-            <input type="range" id="card-sound-volume" min="0" max="100" value="70" style="flex:1;">
-            <span id="card-sound-val" style="width:30px;text-align:right;font-size:0.75rem;color:#d4af37;">70%</span>
-          </label>
-          <label style="margin-bottom:8px;">
-            Music
-            <input type="range" id="music-volume" min="0" max="100" value="35" style="flex:1;">
-            <span id="music-val" style="width:30px;text-align:right;font-size:0.75rem;color:#d4af37;">35%</span>
-          </label>
-        </div>
-
-        <div class="settings-section">
-          <h3>🎵 Background Music</h3>
-          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;" id="music-track-list">
-            <div class="music-track" data-src="card-music-1.mp3" style="padding:6px 10px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);border-radius:6px;color:rgba(255,255,255,0.7);font-family:'Audiowide',sans-serif;font-size:0.7rem;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.15)'" onmouseout="this.style.background='rgba(255,255,255,0.08)'">🎹 Jazz Vibe</div>
-            <div class="music-track" data-src="card-music-2.mp3" style="padding:6px 10px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);border-radius:6px;color:rgba(255,255,255,0.7);font-family:'Audiowide',sans-serif;font-size:0.7rem;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.15)'" onmouseout="this.style.background='rgba(255,255,255,0.08)'">🥁 Chill Drums</div>
-            <div class="music-track" data-src="card-music-3.mp3" style="padding:6px 10px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);border-radius:6px;color:rgba(255,255,255,0.7);font-family:'Audiowide',sans-serif;font-size:0.7rem;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.15)'" onmouseout="this.style.background='rgba(255,255,255,0.08)'">🎶 Pipe Mood</div>
+          <h3>Audio</h3>
+          <div class="settings-row">
+            <label>Card Flip Sound</label>
+            <label class="toggle-switch">
+              <input type="checkbox" id="modal-card-sound-toggle" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="settings-row">
+            <label>Background Music</label>
+            <label class="toggle-switch">
+              <input type="checkbox" id="modal-music-toggle" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div style="margin-top:14px;">
+            <label style="color:rgba(255,255,255,0.85);font-size:0.85rem;">Music Track</label>
+            <select class="music-select" id="modal-music-track">
+              <option value="card-music-1.mp3">Jazz Vibe</option>
+              <option value="card-music-2.mp3">Chill Drums</option>
+              <option value="card-music-3.mp3">Pipe Mood</option>
+            </select>
+            <label style="color:rgba(255,255,255,0.85);font-size:0.85rem;margin-top:8px;display:block;">Volume</label>
+            <input type="range" id="modal-music-volume" min="0" max="100" value="35" class="theme-volume-slider">
           </div>
         </div>
 
         <div class="settings-section">
-          <h3>🖼️ Background</h3>
+          <h3>Background</h3>
           <div class="bg-grid" id="bg-grid">
             <div class="bg-upload-row" id="bg-upload-row">
-              <label class="bg-upload-btn" id="bg-upload-btn" style="display:inline-flex;align-items:center;justify-content:center;padding:6px 12px;background:rgba(255,255,255,0.08);border:2px dashed rgba(255,255,255,0.3);border-radius:8px;color:rgba(255,255,255,0.7);font-size:0.75rem;cursor:pointer;transition:all 0.2s;font-family:'Audiowide',sans-serif;min-width:60px;min-height:40px;">
+              <label class="bg-upload-btn" id="bg-upload-btn">
                 <input type="file" id="custom-bg-input" accept="image/*" style="display:none;">
                 <span>+ Upload</span>
               </label>
@@ -595,11 +692,13 @@
               <button id="clear-custom-bg" style="display:none;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.6);border-radius:6px;padding:4px 8px;font-size:0.7rem;cursor:pointer;">Remove</button>
               <span style="font-size:0.65rem;color:rgba(255,255,255,0.4);margin-left:4px;">rec 1600×1000px</span>
             </div>
-            <div class="bg-thumb active" data-bg="backdrop.png" style="display:flex;align-items:center;justify-content:center;font-size:0.65rem;color:rgba(255,255,255,0.5);background:rgba(255,255,255,0.05);">DEFAULT</div>
-            <div class="bg-thumb" data-bg="card-bg-felt-green.png" style="display:flex;align-items:center;justify-content:center;font-size:0.65rem;color:rgba(255,255,255,0.5);background:url('/card-bg-felt-green.png') center/cover no-repeat;">GREEN FELT</div>
-            <div class="bg-thumb" data-bg="card-bg-dark-wood.png" style="display:flex;align-items:center;justify-content:center;font-size:0.65rem;color:rgba(255,255,255,0.5);background:url('/card-bg-dark-wood.png') center/cover no-repeat;">DARK WOOD</div>
-            <div class="bg-thumb" data-bg="card-bg-royal-purple.png" style="display:flex;align-items:center;justify-content:center;font-size:0.65rem;color:rgba(255,255,255,0.5);background:url('/card-bg-royal-purple.png') center/cover no-repeat;">ROYAL PURPLE</div>
-            <div class="bg-thumb" data-bg="none" style="display:flex;align-items:center;justify-content:center;font-size:0.65rem;letter-spacing:0.05em;">NONE</div>
+            <div class="bg-section-thumbs" id="bg-thumbs-row">
+              <div class="bg-thumb active" data-bg="backdrop.png" style="background:rgba(255,255,255,0.05);">DEFAULT</div>
+              <div class="bg-thumb" data-bg="card-bg-felt-green.png" style="background:url('/card-bg-felt-green.png') center/cover no-repeat;"></div>
+              <div class="bg-thumb" data-bg="card-bg-dark-wood.png" style="background:url('/card-bg-dark-wood.png') center/cover no-repeat;"></div>
+              <div class="bg-thumb" data-bg="card-bg-royal-purple.png" style="background:url('/card-bg-royal-purple.png') center/cover no-repeat;"></div>
+              <div class="bg-thumb" data-bg="none" style="font-size:0.6rem;color:rgba(255,255,255,0.5);">NONE</div>
+            </div>
           </div>
         </div>
 

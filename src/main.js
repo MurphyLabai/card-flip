@@ -11,13 +11,15 @@ spursAudio.loop = false;
 const shuffleAudio = new Audio('/cards-shuffle.mp3');
 shuffleAudio.loop = false;
 
-const soundToggle = document.getElementById('sound-toggle');
-if (soundToggle) {
-  soundToggle.checked = soundEnabled;
-  soundToggle.addEventListener('change', () => {
-    soundEnabled = soundToggle.checked;
-    localStorage.setItem('pp_cardflip_sound', soundEnabled);
-  });
+let musicVolume = parseFloat(localStorage.getItem('pp_cardflip_music_vol') || '0.35');
+let cardSoundVolume = parseFloat(localStorage.getItem('pp_cardflip_sound_vol') || '0.7');
+
+let currentBgMusic = null;
+function stopBgMusic() {
+  if (currentBgMusic) {
+    currentBgMusic.pause();
+    currentBgMusic = null;
+  }
 }
 
 // -- State --------------------------------------------------------------------
@@ -32,6 +34,257 @@ let state = {
 };
 
 let sceneObj = null;
+
+// -- Custom background --------------------------------------------------------
+let customBgDataUrl = localStorage.getItem('pp_cardflip_custom_bg') || null;
+let selectedBg = localStorage.getItem('pp_cardflip_bg') || 'backdrop.png';
+
+function applyBackground(bg) {
+  const container = document.getElementById('canvas-container');
+  if (!container) return;
+  if (bg === 'custom' || (bg === 'custom' && !customBgDataUrl)) return;
+  if (bg === 'none') {
+    container.style.background = 'transparent';
+    return;
+  }
+  container.style.background = `url('/${bg}') no-repeat center center`;
+  container.style.backgroundSize = 'cover';
+}
+
+function applyCustomBg() {
+  if (!customBgDataUrl) return;
+  selectedBg = 'custom';
+  localStorage.setItem('pp_cardflip_bg', 'custom');
+  const container = document.getElementById('canvas-container');
+  if (container) {
+    container.style.background = `url('${customBgDataUrl}') no-repeat center center`;
+    container.style.backgroundSize = 'cover';
+  }
+  document.querySelectorAll('.bg-thumb').forEach(t => t.classList.remove('active'));
+  const thumb = document.getElementById('custom-bg-thumb');
+  if (thumb) thumb.classList.add('active');
+}
+
+function showCustomBgThumb() {
+  const container = document.getElementById('custom-bg-thumb');
+  const clearBtn = document.getElementById('clear-custom-bg');
+  if (!container) return;
+  if (customBgDataUrl) {
+    container.style.display = 'block';
+    container.innerHTML = `<img src="${customBgDataUrl}" style="width:80px;height:45px;object-fit:cover;border-radius:6px;border:2px solid ${selectedBg === 'custom' ? '#d4af37' : 'rgba(255,255,255,0.3)'};cursor:pointer;">`;
+    container.onclick = () => applyCustomBg();
+    container.className = 'bg-thumb' + (selectedBg === 'custom' ? ' active' : '');
+    if (clearBtn) clearBtn.style.display = 'block';
+  } else {
+    container.style.display = 'none';
+    if (clearBtn) clearBtn.style.display = 'none';
+  }
+}
+
+function setupCustomBgUpload() {
+  const input = document.getElementById('custom-bg-input');
+  const uploadBtn = document.getElementById('bg-upload-btn');
+  if (!input || !uploadBtn) return;
+  input.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      customBgDataUrl = ev.target.result;
+      localStorage.setItem('pp_cardflip_custom_bg', customBgDataUrl);
+      applyCustomBg();
+      showCustomBgThumb();
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function removeCustomBg() {
+  customBgDataUrl = null;
+  localStorage.removeItem('pp_cardflip_custom_bg');
+  showCustomBgThumb();
+  if (selectedBg === 'custom') {
+    selectedBg = 'backdrop.png';
+    localStorage.setItem('pp_cardflip_bg', 'backdrop.png');
+    applyBackground('backdrop.png');
+  }
+}
+
+const clearCustomBgBtn = document.getElementById('clear-custom-bg');
+if (clearCustomBgBtn) clearCustomBgBtn.addEventListener('click', removeCustomBg);
+
+// -- Settings modal -----------------------------------------------------------
+const settingsModal = document.getElementById('settings-modal');
+const settingsGear = document.getElementById('settings-gear');
+const settingsCloseBtn = document.getElementById('settings-close');
+
+function openSettings() {
+  if (settingsModal) {
+    settingsModal.classList.add('open');
+    document.body.classList.add('settings-active');
+  }
+}
+function closeSettings() {
+  if (settingsModal) {
+    settingsModal.classList.remove('open');
+    document.body.classList.remove('settings-active');
+  }
+}
+
+if (settingsGear) settingsGear.addEventListener('click', openSettings);
+if (settingsCloseBtn) settingsCloseBtn.addEventListener('click', closeSettings);
+if (settingsModal) {
+  settingsModal.addEventListener('click', (e) => {
+    if (e.target === settingsModal) closeSettings();
+  });
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    if (settingsModal && settingsModal.classList.contains('open')) {
+      closeSettings();
+    }
+  }
+});
+
+// -- Fullscreen / Mega -------------------------------------------------------
+const fullscreenBtn = document.getElementById('fullscreen-btn');
+const megaBtn = document.getElementById('mega-btn');
+const canvasContainer = document.getElementById('canvas-container');
+
+function enterMegaMode() {
+  document.body.classList.add('mega-active');
+  document.body.style.overflow = 'hidden';
+  const stats = document.getElementById('mega-stats');
+  if (stats) stats.classList.add('active');
+  if (canvasContainer) {
+    canvasContainer.style.background = `url('/${selectedBg === 'custom' ? '' : selectedBg}') no-repeat center center`;
+    canvasContainer.style.backgroundSize = 'cover';
+    if (selectedBg === 'custom' && customBgDataUrl) {
+      canvasContainer.style.backgroundImage = `url('${customBgDataUrl}')`;
+    }
+  }
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch(() => {});
+  }
+}
+
+function exitMegaMode() {
+  document.body.classList.remove('mega-active');
+  document.body.style.overflow = '';
+  document.body.style.background = '';
+  const stats = document.getElementById('mega-stats');
+  if (stats) stats.classList.remove('active');
+  applyBackground(selectedBg);
+}
+
+if (fullscreenBtn) {
+  fullscreenBtn.addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  });
+}
+
+if (megaBtn) {
+  megaBtn.addEventListener('click', () => {
+    if (document.body.classList.contains('mega-active')) {
+      exitMegaMode();
+      if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    } else {
+      enterMegaMode();
+    }
+  });
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    if (document.body.classList.contains('mega-active')) {
+      exitMegaMode();
+      setTimeout(() => {
+        if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+      }, 50);
+    }
+  }
+});
+
+document.addEventListener('fullscreenchange', () => {
+  if (!document.fullscreenElement && document.body.classList.contains('mega-active')) {
+    exitMegaMode();
+  }
+});
+
+// Click canvas in mega mode to flip
+if (canvasContainer) {
+  canvasContainer.addEventListener('click', () => {
+    if (document.body.classList.contains('mega-active') && (state.phase === 'results' || state.phase === 'setup')) {
+      document.getElementById('flip-btn').click();
+    }
+  });
+}
+
+// -- Mega stats update --------------------------------------------------------
+function updateMegaStats() {
+  const stats = document.getElementById('mega-stats');
+  if (!stats) return;
+  const total = state.history.length;
+  const remaining = state.shoe.length;
+  const lastFlip = state.history.length > 0 ? state.history[state.history.length - 1].cards.length : 0;
+  stats.innerHTML = `<span style="color:#ffffff;font-size:0.85rem;">Total Flips: ${total} &nbsp;|&nbsp; Last: ${lastFlip} Removed &nbsp;|&nbsp; ${remaining} Left</span>`;
+}
+
+// -- Volume sliders -----------------------------------------------------------
+const cardSoundSlider = document.getElementById('card-sound-volume');
+const musicSlider = document.getElementById('music-volume');
+const cardSoundVal = document.getElementById('card-sound-val');
+const musicVal = document.getElementById('music-val');
+
+if (cardSoundSlider) {
+  cardSoundSlider.value = Math.round(cardSoundVolume * 100);
+  if (cardSoundVal) cardSoundVal.textContent = Math.round(cardSoundVolume * 100) + '%';
+  cardSoundSlider.addEventListener('input', () => {
+    cardSoundVolume = parseInt(cardSoundSlider.value) / 100;
+    localStorage.setItem('pp_cardflip_sound_vol', cardSoundVolume);
+    if (cardSoundVal) cardSoundVal.textContent = cardSoundSlider.value + '%';
+    spursAudio.volume = cardSoundVolume;
+    shuffleAudio.volume = cardSoundVolume;
+  });
+  spursAudio.volume = cardSoundVolume;
+  shuffleAudio.volume = cardSoundVolume;
+}
+
+if (musicSlider) {
+  musicSlider.value = Math.round(musicVolume * 100);
+  if (musicVal) musicVal.textContent = Math.round(musicVolume * 100) + '%';
+  musicSlider.addEventListener('input', () => {
+    musicVolume = parseInt(musicSlider.value) / 100;
+    localStorage.setItem('pp_cardflip_music_vol', musicVolume);
+    if (musicVal) musicVal.textContent = musicSlider.value + '%';
+    if (currentBgMusic) currentBgMusic.volume = musicVolume;
+  });
+}
+
+// -- Background grid ----------------------------------------------------------
+const bgGrid = document.getElementById('bg-grid');
+if (bgGrid) {
+  bgGrid.addEventListener('click', (e) => {
+    const thumb = e.target.closest('.bg-thumb');
+    if (!thumb) return;
+    const bg = thumb.dataset.bg;
+    if (!bg) return;
+    selectedBg = bg;
+    localStorage.setItem('pp_cardflip_bg', bg);
+    if (bg === 'custom') {
+      applyCustomBg();
+    } else {
+      applyBackground(bg);
+    }
+    document.querySelectorAll('.bg-thumb').forEach(t => t.classList.remove('active'));
+    thumb.classList.add('active');
+  });
+}
 
 // -- Helpers -------------------------------------------------------------------
 function getCardColor(card) {
@@ -61,6 +314,11 @@ function init() {
     document.getElementById('flip-btn').textContent = 'FLIP CARDS';
     document.getElementById('history-list').innerHTML = '<div style="color: #555; font-size: 0.8rem; text-align: center; padding: 20px 0;">No flips yet</div>';
   });
+
+  setupCustomBgUpload();
+  showCustomBgThumb();
+  applyBackground(selectedBg);
+  updateMegaStats();
 }
 
 // -- Render loop ---------------------------------------------------------------
@@ -161,8 +419,13 @@ async function handleFlip() {
   flipBtn.textContent = 'Flipping...';
   if (soundEnabled) {
     spursAudio.currentTime = 0;
+    spursAudio.volume = cardSoundVolume;
     spursAudio.play().catch(() => {});
-    setTimeout(() => { shuffleAudio.currentTime = 0; shuffleAudio.play().catch(() => {}); }, 200);
+    setTimeout(() => {
+      shuffleAudio.currentTime = 0;
+      shuffleAudio.volume = cardSoundVolume;
+      shuffleAudio.play().catch(() => {});
+    }, 200);
   }
 
   const flipMeshes = shoeMeshes.slice(0, state.flipCount);
@@ -182,6 +445,7 @@ async function handleFlip() {
   shuffleAudio.pause();
   document.getElementById('flip-count-display').textContent = state.flipCount + ' Cards Removed - ' + state.shoe.length + ' left in shoe';
   buildUI();
+  updateMegaStats();
 }
 
 // -- Clear / Restart -----------------------------------------------------------
@@ -223,6 +487,7 @@ document.getElementById('clear-btn').onclick = () => {
   histDiv.innerHTML = '<div style="color: #555; font-size: 0.8rem; text-align: center; padding: 20px 0;">No flips yet</div>';
   document.getElementById('flip-btn').textContent = 'FLIP CARDS';
   document.getElementById('flip-count-display').textContent = '';
+  updateMegaStats();
 };
 
 init();

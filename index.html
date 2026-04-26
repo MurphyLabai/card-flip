@@ -33,18 +33,231 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 14px;
-      text-align: center;
       margin-bottom: 20px;
+      position: relative;
     }
     .header h1 {
       font-family: 'Audiowide', sans-serif;
       font-size: 2rem;
       color: #ff311d;
-      -webkit-text-stroke: 1.5px #ffffff;
+      -webkit-text-stroke: 1px #ffffff;
       paint-order: stroke fill;
-      margin-right: 250px;
+      margin-right: 320px;
     }
+    .settings-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 9990;
+      align-items: center;
+      justify-content: center;
+    }
+    .settings-modal.open {
+      display: flex;
+    }
+    .settings-box {
+      background: #1e1e2e;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 16px;
+      padding: 24px;
+      width: 480px;
+      max-height: 80vh;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+    .settings-box::-webkit-scrollbar { width: 6px; }
+    .settings-box::-webkit-scrollbar-track { background: transparent; }
+    .settings-box::-webkit-scrollbar-thumb { background: rgba(128,128,128,0.5); border-radius: 3px; }
+    .settings-box h2 {
+      font-family: 'Audiowide', sans-serif;
+      color: #d4af37;
+      font-size: 1.1rem;
+      margin-bottom: 20px;
+      text-align: center;
+      letter-spacing: 2px;
+    }
+    .settings-section {
+      margin-bottom: 20px;
+    }
+    .settings-section h3 {
+      font-family: 'Audiowide', sans-serif;
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 2px;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+    .settings-section label {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.7);
+      font-family: 'Audiowide', sans-serif;
+    }
+    .settings-section label input[type="range"] {
+      flex: 1;
+      height: 4px;
+      appearance: none;
+      background: rgba(255,255,255,0.2);
+      border-radius: 2px;
+      outline: none;
+    }
+    .settings-section label input[type="range"]::-webkit-slider-thumb {
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #d4af37;
+      cursor: pointer;
+    }
+    .bg-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .bg-section-header {
+      font-family: 'Audiowide', sans-serif;
+      font-size: 0.65rem;
+      color: rgba(255,255,255,0.4);
+      letter-spacing: 2px;
+      padding-bottom: 4px;
+    }
+    .bg-section-thumbs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    .bg-thumb {
+      width: 100%;
+      aspect-ratio: 16/9;
+      border-radius: 6px;
+      border: 2px solid rgba(255,255,255,0.2);
+      cursor: pointer;
+      overflow: hidden;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .bg-thumb:hover { border-color: rgba(255,255,255,0.5); }
+    .bg-thumb.active {
+      border-color: #d4af37;
+      box-shadow: 0 0 8px rgba(212,175,55,0.5);
+    }
+    .bg-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .bg-upload-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .bg-upload-row .bg-thumb {
+      width: 80px;
+      height: 45px;
+      border-radius: 6px;
+      border: 2px solid rgba(255,255,255,0.3);
+      cursor: pointer;
+      object-fit: cover;
+    }
+    .bg-upload-row .bg-thumb.active {
+      border-color: #d4af37;
+      box-shadow: 0 0 6px rgba(212,175,55,0.5);
+    }
+    .bg-upload-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 12px;
+      background: rgba(255,255,255,0.08);
+      border: 2px dashed rgba(255,255,255,0.3);
+      border-radius: 8px;
+      color: rgba(255,255,255,0.7);
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'Audiowide', sans-serif;
+      min-width: 60px;
+      min-height: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+    }
+    .bg-upload-btn:hover {
+      background: rgba(255,255,255,0.15);
+      border-color: rgba(255,255,255,0.5);
+      color: #fff;
+    }
+    .settings-close {
+      display: block;
+      width: 100%;
+      margin-top: 16px;
+      padding: 10px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 8px;
+      color: rgba(255,255,255,0.7);
+      font-family: 'Audiowide', sans-serif;
+      font-size: 0.8rem;
+      cursor: pointer;
+      text-align: center;
+    }
+    .settings-close:hover { background: rgba(255,255,255,0.15); color: #fff; }
+    .settings-overlay-hint {
+      display: none;
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.7);
+      color: rgba(255,255,255,0.6);
+      font-size: 0.75rem;
+      padding: 8px 16px;
+      border-radius: 20px;
+      z-index: 9999;
+      pointer-events: none;
+      font-family: 'Audiowide', sans-serif;
+      white-space: nowrap;
+    }
+    .settings-active .settings-overlay-hint { display: block; }
+    .mega-stats {
+      display: none;
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(8px);
+      padding: 8px 20px;
+      font-family: 'Audiowide', sans-serif;
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.85);
+      text-align: center;
+      z-index: 20;
+      letter-spacing: 0.05em;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.1);
+      white-space: nowrap;
+    }
+    .mega-stats.active { display: flex; justify-content: center; gap: 30px; }
+    .mega-active #canvas-container {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      border-radius: 0;
+      border: none;
+      z-index: 9000;
+    }
+    .mega-active .app-layout { display: block; }
+    .mega-active .sidebar,
+    .mega-active .header,
+    .mega-active .flip-count-display { display: none; }
+
 
     /*  Layout  */
     .app-layout {
@@ -243,14 +456,7 @@
       margin-top: 8px;
     }
 
-    .sound-toggle {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: 12px;
-      font-size: 0.85rem;
-      color: rgba(255,255,255,0.7);
-    }
+
 
     .toggle-switch {
       position: relative;
@@ -342,13 +548,68 @@
 
     <div class="header">
       <h1>Card Flip</h1>
+      <div style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%); display: flex; gap: 10px; align-items: center;">
+        <button id="fullscreen-btn" title="Fullscreen" style="background:none;border:none;padding:0;border-radius:4px;cursor:pointer;"><img src="/full.svg" alt="Fullscreen" style="width:40px;height:40px;border:1px solid rgba(255,255,255,0.7);border-radius:4px;box-shadow:0 0 4px rgba(255,255,255,0.2);"></button>
+        <button id="mega-btn" title="Mega Screen" style="background:none;border:none;padding:0;border-radius:4px;cursor:pointer;"><img src="/mega.svg" alt="Mega" style="width:40px;height:40px;border:1px solid rgba(255,255,255,0.7);border-radius:4px;box-shadow:0 0 4px rgba(255,255,255,0.2);"></button>
+        <button id="settings-gear" title="Settings" style="background:none;border:none;padding:0;border-radius:4px;cursor:pointer;"><span style="display:block;width:40px;height:40px;line-height:40px;text-align:center;font-size:1.3rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.7);border-radius:4px;box-shadow:0 0 4px rgba(255,255,255,0.2);">⚙️</span></button>
+        <a href="https://promoplay.ca" target="_blank" rel="noopener noreferrer" title="Home" style="display:flex;align-items:center;justify-content:center;padding:0;border-radius:4px;background:none;border:none;"><img src="/home.svg" alt="Home" style="width:40px;height:40px;border:1px solid rgba(255,255,255,0.7);border-radius:4px;box-shadow:0 0 4px rgba(255,255,255,0.2);"></a>
+      </div>
     </div>
+
+    <div id="settings-modal" class="settings-modal">
+      <div class="settings-box">
+        <h2>⚙️ SETTINGS</h2>
+
+        <div class="settings-section">
+          <h3>🔊 Audio</h3>
+          <label style="margin-bottom:8px;">
+            Card Sounds
+            <input type="range" id="card-sound-volume" min="0" max="100" value="70" style="flex:1;">
+            <span id="card-sound-val" style="width:30px;text-align:right;font-size:0.75rem;color:#d4af37;">70%</span>
+          </label>
+          <label style="margin-bottom:8px;">
+            Music
+            <input type="range" id="music-volume" min="0" max="100" value="35" style="flex:1;">
+            <span id="music-val" style="width:30px;text-align:right;font-size:0.75rem;color:#d4af37;">35%</span>
+          </label>
+        </div>
+
+        <div class="settings-section">
+          <h3>🎵 Background Music</h3>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;" id="music-track-list">
+            <div style="color:rgba(255,255,255,0.4);font-size:0.75rem;font-style:italic;">No tracks loaded</div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <h3>🖼️ Background</h3>
+          <div class="bg-grid" id="bg-grid">
+            <div class="bg-upload-row" id="bg-upload-row">
+              <label class="bg-upload-btn" id="bg-upload-btn" style="display:inline-flex;align-items:center;justify-content:center;padding:6px 12px;background:rgba(255,255,255,0.08);border:2px dashed rgba(255,255,255,0.3);border-radius:8px;color:rgba(255,255,255,0.7);font-size:0.75rem;cursor:pointer;transition:all 0.2s;font-family:'Audiowide',sans-serif;min-width:60px;min-height:40px;">
+                <input type="file" id="custom-bg-input" accept="image/*" style="display:none;">
+                <span>+ Upload</span>
+              </label>
+              <div id="custom-bg-thumb" style="display:none;"></div>
+              <button id="clear-custom-bg" style="display:none;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.6);border-radius:6px;padding:4px 8px;font-size:0.7rem;cursor:pointer;">Remove</button>
+              <span style="font-size:0.65rem;color:rgba(255,255,255,0.4);margin-left:4px;">rec 1600×1000px</span>
+            </div>
+            <div class="bg-thumb active" data-bg="backdrop.png" style="display:flex;align-items:center;justify-content:center;font-size:0.65rem;color:rgba(255,255,255,0.5);background:rgba(255,255,255,0.05);">DEFAULT</div>
+            <div class="bg-thumb" data-bg="none" style="display:flex;align-items:center;justify-content:center;font-size:0.65rem;letter-spacing:0.05em;">NONE</div>
+          </div>
+        </div>
+
+        <button class="settings-close" id="settings-close">Close Settings</button>
+      </div>
+    </div>
+    <div class="settings-overlay-hint">Press ESC to close settings</div>
+    <div class="settings-active">
 
     <div class="app-layout">
       <!-- Left: canvas area -->
       <div class="canvas-section">
         <div id="canvas-container">
           <canvas id="canvas"></canvas>
+          <div id="mega-stats" class="mega-stats"></div>
         </div>
         <div id="flip-count-display"></div>
       </div>
@@ -375,13 +636,6 @@
             </label>
           </div>
           <button class="btn btn-flip" id="flip-btn">FLIP CARDS</button>
-          <div class="sound-toggle">
-            <label class="toggle-switch">
-              <input type="checkbox" id="sound-toggle" checked>
-              <span class="toggle-slider"></span>
-            </label>
-            <span>Sound</span>
-          </div>
         </div>
 
         <div class="card history-card">
@@ -395,6 +649,8 @@
         </div>
 
       </div>
+    </div>
+
     </div>
   </div>
 

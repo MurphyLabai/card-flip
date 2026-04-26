@@ -39,26 +39,6 @@ function playMusicTrack(src) {
   });
 }
 
-// Wire up music track clicks after DOM is ready
-setTimeout(() => {
-  document.querySelectorAll('.music-track').forEach(track => {
-    track.addEventListener('click', () => {
-      const src = track.dataset.src;
-      if (currentTrackSrc === src) {
-        stopBgMusic();
-        currentTrackSrc = null;
-        track.style.borderColor = 'rgba(255,255,255,0.2)';
-        track.style.color = 'rgba(255,255,255,0.7)';
-      } else {
-        playMusicTrack(src);
-      }
-    });
-  });
-  // Auto-start music on page load
-  const last = localStorage.getItem('pp_cardflip_last_music');
-  playMusicTrack('card-music-2.mp3');
-}, 500);
-
 // -- State --------------------------------------------------------------------
 let state = {
   phase: 'setup',

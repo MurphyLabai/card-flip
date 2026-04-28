@@ -35,7 +35,7 @@ export function makeFaceTex(card) {
     ctx.textBaseline = 'middle';
     ctx.fillText('🃏', 128, 185);
   } else {
-    ctx.fillStyle = isRed ? '#c41e3a' : '#1a1a1a';
+    ctx.fillStyle = isRed ? '#ff0000' : '#000000';
     ctx.font = 'bold 44px Georgia, serif';
     ctx.textAlign = 'left';
     ctx.fillText(card.rank, 12, 50);
@@ -45,7 +45,7 @@ export function makeFaceTex(card) {
     ctx.save();
     ctx.translate(256, 360);
     ctx.rotate(Math.PI);
-    ctx.fillStyle = isRed ? '#c41e3a' : '#1a1a1a';
+    ctx.fillStyle = isRed ? '#ff0000' : '#000000';
     ctx.font = 'bold 42px Georgia, serif';
     ctx.textAlign = 'left';
     ctx.fillText(card.rank, 14, 48);
@@ -53,7 +53,7 @@ export function makeFaceTex(card) {
     ctx.fillText(suit.symbol, 14, 86);
     ctx.restore();
 
-    ctx.font = '140px serif';
+    ctx.font = '120px serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = suit.color;
@@ -61,48 +61,32 @@ export function makeFaceTex(card) {
   }
 
   const tex = new THREE.CanvasTexture(cvs);
+  tex.minFilter = THREE.LinearFilter;
+  tex.magFilter = THREE.LinearFilter;
   tex.needsUpdate = true;
   return tex;
 }
 
-export function makeBackTex() {
+export function makeBackTex(deckName = 'ORIGINAL') {
   const cvs = document.createElement('canvas');
   cvs.width = 256;
   cvs.height = 360;
   const ctx = cvs.getContext('2d');
-
-  ctx.fillStyle = '#ff0000';
-  ctx.fillRect(0, 0, 256, 360);
-
-  ctx.fillStyle = '#888888';
-  const step = 18;
-  for (let y = 0; y < 360; y += step) {
-    for (let x = 0; x < 256; x += step) {
-      const ox = (y / step % 2 === 0) ? 0 : step / 2;
-      ctx.beginPath();
-      ctx.arc(x + ox + step / 2, y + step / 2, 3, 0, Math.PI * 2);
-      ctx.fill();
-    }
-  }
-
-  ctx.strokeStyle = '#000000';
-  ctx.lineWidth = 6;
-  ctx.strokeRect(4, 4, 248, 352);
-
-  // Black P with white outline, no circle, bigger
-  ctx.save();
-  ctx.font = 'bold 155px "Mr Dafoe", Arial';
-  ctx.strokeStyle = '#ffffff';
-  ctx.lineWidth = 4;
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.strokeText('P', 128, 185);
   ctx.fillStyle = '#000000';
-  ctx.fillText('P', 128, 185);
-  ctx.restore();
-
+  ctx.fillRect(0, 0, 256, 360);
   const tex = new THREE.CanvasTexture(cvs);
+  tex.minFilter = THREE.LinearFilter;
+  tex.magFilter = THREE.LinearFilter;
   tex.needsUpdate = true;
+  const img = new Image();
+  img.onload = () => {
+    ctx.clearRect(0, 0, 256, 360);
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(img, 0, 0, 256, 360);
+    tex.needsUpdate = true;
+  };
+  img.src = '/deck-backs/' + deckName + '.png';
+  img.crossOrigin = 'anonymous';
   return tex;
 }
 

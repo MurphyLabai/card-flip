@@ -223,6 +223,7 @@
       align-items: center;
       justify-content: center;
       font-size: 0.65rem;
+      position: relative;
       color: rgba(255,255,255,0.4);
       background: rgba(255,255,255,0.05);
     }
@@ -233,6 +234,21 @@
     .bg-thumb.active {
       border-color: #d4af37;
       box-shadow: 0 0 8px rgba(212,175,55,0.4);
+    }
+    .bg-thumb .thumb-label {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0,0,0,0.65);
+      color: #fff;
+      font-family: 'Audiowide', sans-serif;
+      font-size: 0.5rem;
+      letter-spacing: 0.05em;
+      text-align: center;
+      padding: 2px 0;
+      text-transform: uppercase;
+      pointer-events: none;
     }
     .bg-thumb img {
       width: 100%;
@@ -371,7 +387,7 @@
       border-radius: 16px;
       overflow: hidden;
       border: 1px solid rgba(255,255,255,0.85);
-      background: url('/backdrop.png') no-repeat center center;
+      background: url('/GRASS.png') no-repeat center center;
       background-size: cover;
       position: relative;
       min-height: 450px;
@@ -689,11 +705,38 @@
               <span style="font-size:0.65rem;color:rgba(255,255,255,0.4);margin-left:4px;">rec 1600×1000px</span>
             </div>
             <div class="bg-section-thumbs" id="bg-thumbs-row">
-              <div class="bg-thumb active" data-bg="backdrop.png" style="background:rgba(255,255,255,0.05);">DEFAULT</div>
-              <div class="bg-thumb" data-bg="card-bg-felt-green.png" style="background:url('/card-bg-felt-green.png') center/cover no-repeat;"></div>
-              <div class="bg-thumb" data-bg="card-bg-dark-wood.png" style="background:url('/card-bg-dark-wood.png') center/cover no-repeat;"></div>
-              <div class="bg-thumb" data-bg="card-bg-royal-purple.png" style="background:url('/card-bg-royal-purple.png') center/cover no-repeat;"></div>
+              <div class="bg-thumb" data-bg="GRASS.png" style="background:url('/GRASS.png') center/cover no-repeat;"><span class="thumb-label">GRASS</span></div>
+              <div class="bg-thumb" data-bg="BARN.png" style="background:url('/BARN.png') center/cover no-repeat;"><span class="thumb-label">BARN</span></div>
+              <div class="bg-thumb" data-bg="BEACH.png" style="background:url('/BEACH.png') center/cover no-repeat;"><span class="thumb-label">BEACH</span></div>
+              <div class="bg-thumb" data-bg="DUNGEON.png" style="background:url('/DUNGEON.png') center/cover no-repeat;"><span class="thumb-label">DUNGEON</span></div>
+              <div class="bg-thumb" data-bg="GALAXY.png" style="background:url('/GALAXY.png') center/cover no-repeat;"><span class="thumb-label">GALAXY</span></div>
+              <div class="bg-thumb" data-bg="POKER.png" style="background:url('/POKER.png') center/cover no-repeat;"><span class="thumb-label">POKER</span></div>
+              <div class="bg-thumb" data-bg="RED.png" style="background:url('/RED.png') center/cover no-repeat;"><span class="thumb-label">RED</span></div>
+              <div class="bg-thumb" data-bg="SIMPLE.png" style="background:url('/SIMPLE.png') center/cover no-repeat;"><span class="thumb-label">SIMPLE</span></div>
+              <div class="bg-thumb" data-bg="TUNNEL.png" style="background:url('/TUNNEL.png') center/cover no-repeat;"><span class="thumb-label">TUNNEL</span></div>
               <div class="bg-thumb" data-bg="none" style="font-size:0.6rem;color:rgba(255,255,255,0.5);">NONE</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <h3>Card Decks</h3>
+          <div class="bg-grid" id="deck-grid">
+            <div class="bg-section-thumbs" id="deck-thumbs-row">
+              <div class="bg-thumb active" data-deck="ORIGINAL" style="background:url('/deck-backs/ORIGINAL.png') center/cover no-repeat;"><span class="thumb-label">ORIGINAL</span></div>
+              <div class="bg-thumb" data-deck="ALIEN" style="background:url('/deck-backs/ALIEN.png') center/cover no-repeat;"><span class="thumb-label">ALIEN</span></div>
+              <div class="bg-thumb" data-deck="BEACH" style="background:url('/deck-backs/BEACH.png') center/cover no-repeat;"><span class="thumb-label">BEACH</span></div>
+              <div class="bg-thumb" data-deck="CASTLE" style="background:url('/deck-backs/CASTLE.png') center/cover no-repeat;"><span class="thumb-label">CASTLE</span></div>
+              <div class="bg-thumb" data-deck="COSMIC" style="background:url('/deck-backs/COSMIC.png') center/cover no-repeat;"><span class="thumb-label">COSMIC</span></div>
+              <div class="bg-thumb" data-deck="DOOR" style="background:url('/deck-backs/DOOR.png') center/cover no-repeat;"><span class="thumb-label">DOOR</span></div>
+              <div class="bg-thumb" data-deck="MIAMI" style="background:url('/deck-backs/MIAMI.png') center/cover no-repeat;"><span class="thumb-label">MIAMI</span></div>
+              <div class="bg-thumb" data-deck="RETRO" style="background:url('/deck-backs/RETRO.png') center/cover no-repeat;"><span class="thumb-label">RETRO</span></div>
+              <div class="bg-thumb" data-deck="ROBOT" style="background:url('/deck-backs/ROBOT.png') center/cover no-repeat;"><span class="thumb-label">ROBOT</span></div>
+              <div class="bg-thumb" data-deck="STONE" style="background:url('/deck-backs/STONE.png') center/cover no-repeat;"><span class="thumb-label">STONE</span></div>
+              <div class="bg-thumb" data-deck="CREDIT" style="background:url('/deck-backs/CREDIT.png') center/cover no-repeat;"><span class="thumb-label">CREDIT</span></div>
+              <div class="bg-thumb" data-deck="CAT" style="background:url('/deck-backs/CAT.png') center/cover no-repeat;"><span class="thumb-label">CAT</span></div>
+              <div class="bg-thumb" data-deck="DOG" style="background:url('/deck-backs/DOG.png') center/cover no-repeat;"><span class="thumb-label">DOG</span></div>
+              <div class="bg-thumb" data-deck="HORSE" style="background:url('/deck-backs/HORSE.png') center/cover no-repeat;"><span class="thumb-label">HORSE</span></div>
             </div>
           </div>
         </div>

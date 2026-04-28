@@ -54,7 +54,7 @@ let sceneObj = null;
 
 // -- Custom background --------------------------------------------------------
 let customBgDataUrl = localStorage.getItem('pp_cardflip_custom_bg') || null;
-let selectedBg = localStorage.getItem('pp_cardflip_bg') || 'backdrop.png';
+let selectedBg = localStorage.getItem('pp_cardflip_bg') || 'GRASS.png';
 
 function applyBackground(bg) {
   const container = document.getElementById('canvas-container');
@@ -64,8 +64,7 @@ function applyBackground(bg) {
     container.style.background = 'transparent';
     return;
   }
-  container.style.background = `url('/${bg}') no-repeat center center`;
-  container.style.backgroundSize = 'cover';
+  container.style.background = `url('/${bg}') center/cover no-repeat`;
 }
 
 function applyCustomBg() {
@@ -98,6 +97,12 @@ function showCustomBgThumb() {
   }
 }
 
+function syncBgActiveState() {
+  document.querySelectorAll('.bg-thumb[data-bg]').forEach(t => {
+    t.classList.toggle('active', t.dataset.bg === selectedBg);
+  });
+}
+
 function setupCustomBgUpload() {
   const input = document.getElementById('custom-bg-input');
   const uploadBtn = document.getElementById('bg-upload-btn');
@@ -121,9 +126,9 @@ function removeCustomBg() {
   localStorage.removeItem('pp_cardflip_custom_bg');
   showCustomBgThumb();
   if (selectedBg === 'custom') {
-    selectedBg = 'backdrop.png';
-    localStorage.setItem('pp_cardflip_bg', 'backdrop.png');
-    applyBackground('backdrop.png');
+    selectedBg = 'GRASS.png';
+    localStorage.setItem('pp_cardflip_bg', 'GRASS.png');
+    applyBackground('GRASS.png');
   }
 }
 
@@ -248,8 +253,8 @@ function updateMegaStats() {
   if (!stats) return;
   const total = state.history.length;
   const remaining = state.shoe.length;
-  const lastFlip = state.history.length > 0 ? state.history[state.history.length - 1].cards.length : 0;
-  stats.innerHTML = `<span style="color:#ffffff;font-size:0.85rem;">Total Flips: ${total} &nbsp;|&nbsp; This Flip: ${lastFlip} &nbsp;|&nbsp; ${remaining} Left in Shoe</span>`;
+  const lastFlip = state.history.length > 0 ? state.history[state.history.length - 1].cards.length : state.flipCount;
+  stats.innerHTML = `<span style="color:#ffffff;font-size:0.85rem;">Total Flips: ${total} &nbsp;|&nbsp; This Flip: ${lastFlip} Removed &nbsp;|&nbsp; ${remaining} Left in Shoe</span>`;
 }
 
 // -- Volume sliders (legacy sidebar - kept for compatibility) ---------------
@@ -323,6 +328,18 @@ if (modalMusicVolume) {
   });
 }
 
+// -- Card deck backs -------------------------------------------------------
+let selectedDeck = localStorage.getItem('pp_cardflip_deck') || 'ORIGINAL';
+
+function syncDeckActiveState() {
+  document.querySelectorAll('.bg-thumb[data-bg]').forEach(t => {
+    t.classList.toggle('active', t.dataset.bg === selectedBg);
+  });
+  document.querySelectorAll('.bg-thumb[data-deck]').forEach(t => {
+    t.classList.toggle('active', t.dataset.deck === selectedDeck);
+  });
+}
+
 // -- Background grid ----------------------------------------------------------
 const bgGrid = document.getElementById('bg-grid');
 if (bgGrid) {
@@ -338,8 +355,21 @@ if (bgGrid) {
     } else {
       applyBackground(bg);
     }
-    document.querySelectorAll('.bg-thumb').forEach(t => t.classList.remove('active'));
-    thumb.classList.add('active');
+    syncBgActiveState();
+  });
+}
+
+// -- Deck grid ----------------------------------------------------------------
+const deckGrid = document.getElementById('deck-grid');
+if (deckGrid) {
+  deckGrid.addEventListener('click', (e) => {
+    const thumb = e.target.closest('.bg-thumb');
+    if (!thumb) return;
+    const deck = thumb.dataset.deck;
+    if (!deck) return;
+    selectedDeck = deck;
+    localStorage.setItem('pp_cardflip_deck', deck);
+    syncDeckActiveState();
   });
 }
 
@@ -374,6 +404,7 @@ function init() {
 
   setupCustomBgUpload();
   showCustomBgThumb();
+  syncBgActiveState();
   applyBackground(selectedBg);
   updateMegaStats();
 }
@@ -461,7 +492,7 @@ async function handleFlip() {
   clearSceneCards();
 
   const shoeMeshes = [];
-  const backTex = makeBackTex();
+  const backTex = makeBackTex(selectedDeck);
 
   for (let i = 0; i < state.shoe.length; i++) {
     const frontTex = makeFaceTex(state.shoe[i]);

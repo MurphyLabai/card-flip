@@ -637,8 +637,27 @@
 
     @media (max-width: 800px) {
       .app-layout { flex-direction: column; }
+      .canvas-section { width: 100% !important; min-height: unset !important; }
       .sidebar { width: 100%; }
-      #canvas-container { height: 350px; }
+      #canvas-container { flex: none !important; min-height: unset !important; padding-bottom: 62.5%; position: relative; }
+      #mobile-flip-btn { display: none; }
+    }
+    @media (max-width: 800px) {
+      #mobile-flip-btn {
+        display: flex;
+        position: absolute;
+        bottom: 12px;
+        right: 12px;
+        background: #d4af37;
+        color: #000;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 16px;
+        font-family: 'Audiowide', sans-serif;
+        font-size: 0.9rem;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+      }
     }
 
     ::-webkit-scrollbar { width: 4px; }
@@ -749,6 +768,7 @@
         <div id="canvas-container">
           <canvas id="canvas"></canvas>
           <div id="mega-stats" class="mega-stats"></div>
+          <button id="mobile-flip-btn" title="Flip Cards">FLIP</button>
         </div>
         <div id="flip-count-display"></div>
       </div>
@@ -798,6 +818,8 @@
     <span style="font-family: 'Audiowide', sans-serif; font-size: 1rem; color: #888;">Powered by <a href="https://promoplay.ca" target="_blank" style="color: #888; text-decoration: none;">PromoPlay.ca</a> All rights reserved 2026</span>
   </footer>
 
-  <script type="module" src="./src/main.js"></script>
+  
+
+<script type="module" src="./src/main.js"></script>
 </body>
 </html>

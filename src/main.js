@@ -210,6 +210,12 @@ if (fullscreenBtn) {
   });
 }
 
+// Mobile flip button
+const mobileFlipBtn = document.getElementById('mobile-flip-btn');
+if (mobileFlipBtn) {
+  mobileFlipBtn.addEventListener('click', () => { handleFlip(); });
+}
+
 if (megaBtn) {
   megaBtn.addEventListener('click', () => {
     if (document.body.classList.contains('mega-active')) {

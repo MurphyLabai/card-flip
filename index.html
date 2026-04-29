@@ -643,6 +643,14 @@
       #mega-btn { display: none; }
       .header h1 { font-size: 1.5rem !important; white-space: nowrap; margin-right: 180px !important; }
     }
+
+    /* Landscape mobile: canvas left, options right */
+    @media (max-width: 800px) and (orientation: landscape) {
+      .app-layout { flex-direction: row !important; gap: 16px !important; }
+      .canvas-section { width: 60% !important; flex: none !important; min-height: unset !important; }
+      .sidebar { width: 38% !important; flex: none !important; display: flex !important; flex-direction: column; gap: 12px; }
+      #canvas-container { flex: none !important; min-height: unset !important; padding-bottom: 56.25% !important; position: relative !important; }
+    }
     #mobile-flip-btn { display: none; }
     @media (max-width: 800px) {
       #mobile-flip-btn {

@@ -56,7 +56,7 @@ export function makeFaceTex(card) {
     ctx.font = '120px serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillStyle = suit.color;
+    ctx.fillStyle = isRed ? "#ff0000" : "#000000";
     ctx.fillText(suit.symbol, 128, 185);
   }
 
